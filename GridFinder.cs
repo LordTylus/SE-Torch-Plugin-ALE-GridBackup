@@ -72,9 +72,15 @@ namespace ALE_GridBackup {
             if (biggestGrid == null)
                 return false;
 
-            /* No owner at all? hard to believe. but okay skip it. */
-            if (biggestGrid.BigOwners.Count == 0)
-                return false;
+            bool hasOwners = biggestGrid.BigOwners.Count == 0;
+
+            if(!hasOwners) {
+
+                if (playerId != 0L)
+                    return false;
+
+                return true;
+            }
 
             return playerId == biggestGrid.BigOwners[0];
         }

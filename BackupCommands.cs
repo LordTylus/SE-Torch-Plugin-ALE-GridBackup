@@ -101,10 +101,6 @@ namespace ALE_GridBackup {
                 string gridName = name.Substring(0, lastIndex);
                 string entityId = name.Substring(lastIndex + 1, name.Length - (lastIndex + 1));
 
-                Log.Info(name);
-                Log.Info(gridName);
-                Log.Info(entityId);
-
                 if (entityId == gridNameOrEntityId)
                     return name;
 
@@ -173,14 +169,18 @@ namespace ALE_GridBackup {
                     biggestGrid = grid;
 
             /* No biggest grid should not be possible, unless the gridgroup only had projections -.- just skip it. */
-            if (biggestGrid == null)
+            if (biggestGrid == null) {
                 Context.Respond("Grid incompatible!");
+                return;
+            }
+
+            long playerId;
 
             /* No owner at all? hard to believe. but okay skip it. */
             if (biggestGrid.BigOwners.Count == 0)
-                Context.Respond("Grid has no ownership!");
-
-            long playerId = biggestGrid.BigOwners[0];
+                playerId = 0;
+            else
+                playerId = biggestGrid.BigOwners[0];
 
             if (BackupQueue.BackupSignleGridStatic(playerId, grids, Plugin.CreatePath(), null, Plugin, false))
                 Context.Respond("Export Complete!");
