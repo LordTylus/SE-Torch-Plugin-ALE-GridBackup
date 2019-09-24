@@ -8,6 +8,7 @@ namespace ALE_GridBackup {
         private int _saveIntervalMinutes = 30;
         private int _numberOfBackupSaves = 5;
         private int _minBlocksForBackup = 20;
+        private int _delayTicksBetweenExports = 1;
         private bool _keepOriginalOwner = true;
         private bool _backupConnections = false;
         private bool _backupProjections = false;
@@ -17,6 +18,7 @@ namespace ALE_GridBackup {
         public int SaveIntervalMinutes { get => _saveIntervalMinutes; set => SetValue(ref _saveIntervalMinutes, value); }
         public int NumberOfBackupSaves { get => _numberOfBackupSaves; set => SetValue(ref _numberOfBackupSaves, value); }
         public int MinBlocksForBackup { get => _minBlocksForBackup; set => SetValue(ref _minBlocksForBackup, value); }
+        public int DelayTicksBetweenExports { get => _delayTicksBetweenExports; set => SetValue(ref _delayTicksBetweenExports, value); }
         public bool KeepOriginalOwner { get => _keepOriginalOwner; set => SetValue(ref _keepOriginalOwner, value); }
         public bool BackupConnections { get => _backupConnections; set => SetValue(ref _backupConnections, value); }
         public bool BackupProjections { get => _backupProjections; set => SetValue(ref _backupProjections, value); }

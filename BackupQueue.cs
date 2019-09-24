@@ -21,6 +21,7 @@ namespace ALE_GridBackup {
         private readonly Stack<long> stack = new Stack<long>();
 
         private readonly HashSet<long> alreadyExportedGrids = new HashSet<long>();
+        private int UpdateCount = 0;
 
         public BackupQueue(GridBackupPlugin Plugin) {
             this.Plugin = Plugin;
@@ -48,6 +49,13 @@ namespace ALE_GridBackup {
         public void Update() {
 
             try {
+
+                UpdateCount++;
+                if (UpdateCount > Plugin.Config.DelayTicksBetweenExports)
+                    UpdateCount = 0;
+
+                if (UpdateCount != 0)
+                    return;
 
                 stopwatch.Start();
 
@@ -86,6 +94,11 @@ namespace ALE_GridBackup {
         }
 
         public bool BackupSignleGrid(long playerId, List<MyCubeGrid> grids, string path) {
+            return BackupSignleGridStatic(playerId, grids, path, alreadyExportedGrids, Plugin);
+        }
+
+        public static bool BackupSignleGridStatic(long playerId, List<MyCubeGrid> grids,
+            string path, HashSet<long> alreadyExportedGrids, GridBackupPlugin plugin, bool background = true) {
 
             MyCubeGrid biggestGrid = null;
 
@@ -103,13 +116,16 @@ namespace ALE_GridBackup {
 
             long entityId = biggestGrid.EntityId;
 
-            if (alreadyExportedGrids.Contains(entityId))
-                return false;
+            if (alreadyExportedGrids != null) {
 
-            alreadyExportedGrids.Add(entityId);
+                if (alreadyExportedGrids.Contains(entityId))
+                    return false;
+
+                alreadyExportedGrids.Add(entityId);
+            }
 
             /* To little blocks... ignore */
-            if (blockCount < Plugin.Config.MinBlocksForBackup)
+            if (blockCount < plugin.Config.MinBlocksForBackup)
                 return true;
 
             List<MyObjectBuilder_CubeGrid> objectBuilders = new List<MyObjectBuilder_CubeGrid>();
@@ -123,39 +139,53 @@ namespace ALE_GridBackup {
                 objectBuilders.Add(objectBuilder);
             }
 
-            MyAPIGateway.Parallel.StartBackground(() => {
+            if(background) {
 
-                try {
+                MyAPIGateway.Parallel.StartBackground(() => {
+                    BackupGrid(playerId, path, plugin, biggestGrid, entityId, objectBuilders);
+                });
 
-                    string pathForPlayer = Plugin.CreatePathForPlayer(path, playerId);
+            } else {
 
-                    string gridName = biggestGrid.DisplayName;
-
-                    string pathForGrid = Plugin.CreatePathForGrid(pathForPlayer, gridName, entityId);
-                    string fileName = DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".sbc";
-
-                    string pathForFile = Path.Combine(pathForGrid, fileName);
-
-                    bool saved = GridManager.SaveGrid(pathForFile, gridName, Plugin.Config.KeepOriginalOwner, Plugin.Config.BackupProjections, objectBuilders);
-
-                    if (saved)
-                        CleanUpDirectory(pathForGrid);
-
-                } catch (Exception e) {
-                    Log.Error(e, "Error on Export Grid!");
-                }
-            });
+                return BackupGrid(playerId, path, plugin, biggestGrid, entityId, objectBuilders);
+            }
 
             return true;
         }
 
-        private void CleanUpDirectory(string pathForGrid) {
+        private static bool BackupGrid(long playerId, string path, GridBackupPlugin plugin, MyCubeGrid biggestGrid, long entityId, List<MyObjectBuilder_CubeGrid> objectBuilders) {
+
+            try {
+
+                string pathForPlayer = plugin.CreatePathForPlayer(path, playerId);
+
+                string gridName = biggestGrid.DisplayName;
+
+                string pathForGrid = plugin.CreatePathForGrid(pathForPlayer, gridName, entityId);
+                string fileName = DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".sbc";
+
+                string pathForFile = Path.Combine(pathForGrid, fileName);
+
+                bool saved = GridManager.SaveGrid(pathForFile, gridName, plugin.Config.KeepOriginalOwner, plugin.Config.BackupProjections, objectBuilders);
+
+                if (saved)
+                    CleanUpDirectory(plugin, pathForGrid);
+
+                return saved;
+
+            } catch (Exception e) {
+                Log.Error(e, "Error on Export Grid!");
+                return false;
+            }
+        }
+
+        private static void CleanUpDirectory(GridBackupPlugin plugin, string pathForGrid) {
 
             DirectoryInfo dir = new DirectoryInfo(pathForGrid);
             FileInfo[] fileList = dir.GetFiles("*.*", SearchOption.TopDirectoryOnly);
 
             var query = fileList.OrderByDescending(file => file.CreationTime);
-            int numberOfFilesToKeep = Plugin.Config.NumberOfBackupSaves;
+            int numberOfFilesToKeep = plugin.Config.NumberOfBackupSaves;
 
             int i = 0;
             foreach (var file in query)

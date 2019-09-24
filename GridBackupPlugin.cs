@@ -125,6 +125,16 @@ namespace ALE_GridBackup {
             }
         }
 
+        public bool StartBackupManually() {
+
+            if (!backupQueue.IsEmpty())
+                return false;
+
+            StartBackup();
+
+            return true;
+        }
+
         public void StartBackup() {
 
             /* Restart stopwatch for logging how long backup took */

@@ -79,21 +79,21 @@ namespace ALE_GridBackup {
             return playerId == biggestGrid.BigOwners[0];
         }
 
-        public static List<MyCubeGrid> FindGridList(string gridName, MyCharacter character, bool includeConnectedGrids) {
+        public static List<MyCubeGrid> FindGridList(string gridNameOrEntityId, MyCharacter character, bool includeConnectedGrids) {
 
             List<MyCubeGrid> grids = new List<MyCubeGrid>();
 
-            if (gridName == null && character == null)
+            if (gridNameOrEntityId == null && character == null)
                 return new List<MyCubeGrid>();
 
             if (includeConnectedGrids) {
 
                 ConcurrentBag<MyGroups<MyCubeGrid, MyGridPhysicalGroupData>.Group> groups;
 
-                if (gridName == null)
+                if (gridNameOrEntityId == null)
                     groups = FindLookAtGridGroup(character);
                 else
-                    groups = FindGridGroup(gridName);
+                    groups = FindGridGroup(gridNameOrEntityId);
 
                 if (groups.Count > 1)
                     return null;
@@ -114,10 +114,10 @@ namespace ALE_GridBackup {
 
                 ConcurrentBag<MyGroups<MyCubeGrid, MyGridMechanicalGroupData>.Group> groups;
 
-                if (gridName == null)
+                if (gridNameOrEntityId == null)
                     groups = FindLookAtGridGroupMechanical(character);
                 else
-                    groups = FindGridGroupMechanical(gridName);
+                    groups = FindGridGroupMechanical(gridNameOrEntityId);
 
                 if (groups.Count > 1)
                     return null;
@@ -145,13 +145,13 @@ namespace ALE_GridBackup {
 
                 foreach (MyGroups<MyCubeGrid, MyGridPhysicalGroupData>.Node groupNodes in group.Nodes) {
 
-                    IMyCubeGrid grid = groupNodes.NodeData;
+                    MyCubeGrid grid = groupNodes.NodeData;
 
                     if (grid.Physics == null)
                         continue;
 
                     /* Gridname is wrong ignore */
-                    if (!grid.CustomName.Equals(gridName))
+                    if (!grid.DisplayName.Equals(gridName) && grid.EntityId+"" != gridName)
                         continue;
 
                     groups.Add(group);
@@ -232,13 +232,13 @@ namespace ALE_GridBackup {
 
                 foreach (MyGroups<MyCubeGrid, MyGridMechanicalGroupData>.Node groupNodes in group.Nodes) {
 
-                    IMyCubeGrid grid = groupNodes.NodeData;
+                    MyCubeGrid grid = groupNodes.NodeData;
 
                     if (grid.Physics == null)
                         continue;
 
                     /* Gridname is wrong ignore */
-                    if (!grid.CustomName.Equals(gridName))
+                    if (!grid.DisplayName.Equals(gridName) && grid.EntityId + "" != gridName)
                         continue;
 
                     groups.Add(group);
