@@ -15,6 +15,7 @@ using Torch.Commands.Permissions;
 using Torch.Mod;
 using Torch.Mod.Messages;
 using VRage.Game.ModAPI;
+using VRageMath;
 
 namespace ALE_GridBackup {
 
@@ -117,7 +118,7 @@ namespace ALE_GridBackup {
 
         [Command("restore", "Restores the given grid from the backups.")]
         [Permission(MyPromoteLevel.SpaceMaster)]
-        public void Restore(string playernameOrSteamId, string gridNameOrEntityId, int backupNumber = 1, bool keepOriginalPosition = false) {
+        public void Restore(string playernameOrSteamId, string gridNameOrEntityId, int backupNumber = 1, bool keepOriginalPosition = false, bool force = false) {
 
             MyIdentity player = PlayerUtils.GetIdentityByNameOrId(playernameOrSteamId);
 
@@ -125,6 +126,60 @@ namespace ALE_GridBackup {
                 Context.Respond("Player not found!");
                 return;
             }
+
+            string path = Plugin.CreatePath();
+            path = Plugin.CreatePathForPlayer(path, player.IdentityId);
+
+            DirectoryInfo gridDir = new DirectoryInfo(path);
+            DirectoryInfo[] dirList = gridDir.GetDirectories("*", SearchOption.TopDirectoryOnly);
+
+            StringBuilder sb = new StringBuilder();
+
+            string folder = FindFolderName(dirList, gridNameOrEntityId);
+
+            if (folder == null) {
+                Context.Respond("Grid not found!");
+                return;
+            }
+
+            path = Path.Combine(path, folder);
+            gridDir = new DirectoryInfo(path);
+            FileInfo[] fileList = gridDir.GetFiles("*.*", SearchOption.TopDirectoryOnly);
+
+            List<FileInfo> query = new List<FileInfo>(fileList.OrderByDescending(f => f.CreationTime));
+
+            if(backupNumber > query.Count || backupNumber < 1) { 
+                Context.Respond("Backup not found! Check if the number is in range!");
+                return;
+            }
+
+            FileInfo file = query[backupNumber - 1];
+
+            path = Path.Combine(path, file.Name);
+
+            var playerPosition = Vector3D.Zero;
+
+            if (!keepOriginalPosition) {
+
+                if (Context.Player == null) {
+                    Context.Respond("Console can only paste on the same location. Check the syntax on the plugin page!");
+                    return;
+                }
+
+                var executingPlayer = ((MyPlayer)Context.Player).Identity;
+
+                if (executingPlayer.Character == null) {
+                    Context.Respond("Player has no character to spawn the grid close to!");
+                    return;
+                }
+
+                playerPosition = executingPlayer.Character.PositionComp.GetPosition();
+            }
+
+            if(GridManager.LoadGrid(path, playerPosition, keepOriginalPosition, force, Context))
+                Context.Respond("Restore Complete!");
+            else
+                Context.Respond("Restore Failed!");
         }
 
         [Command("save", "Saves the grid defined by name, or you are looking at manually.")]

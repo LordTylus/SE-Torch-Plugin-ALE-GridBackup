@@ -6,6 +6,7 @@ using Sandbox;
 using Sandbox.Game.Entities;
 using Torch.Commands;
 using VRage.Game;
+using VRage.Game.Entity;
 using VRage.ObjectBuilders;
 using VRageMath;
 
@@ -46,7 +47,7 @@ namespace ALE_GridBackup {
             return MyObjectBuilderSerializer.SerializeXML(path, false, builderDefinition);
         }
 
-        public static bool LoadGrid(string path, Vector3D playerPosition, CommandContext context = null) {
+        public static bool LoadGrid(string path, Vector3D playerPosition, bool keepOriginalLocation, bool force = false, CommandContext context = null) {
 
             if (MyObjectBuilderSerializer.DeserializeXML(path, out MyObjectBuilder_Definitions myObjectBuilder_Definitions)) {
 
@@ -64,7 +65,7 @@ namespace ALE_GridBackup {
                     
                 foreach(var shipBlueprint in shipBlueprints) { 
 
-                    if(!LoadShipBlueprint(shipBlueprint, playerPosition)) {
+                    if(!LoadShipBlueprint(shipBlueprint, playerPosition, keepOriginalLocation, context, force)) {
 
                         Log.Warn("Error Loading ShipBlueprints from File '" + path + "'");
                         return false;
@@ -79,31 +80,73 @@ namespace ALE_GridBackup {
             return false;
         }
 
-        private static bool LoadShipBlueprint(MyObjectBuilder_ShipBlueprintDefinition shipBlueprint, Vector3D playerPosition, CommandContext context = null) {
+        private static bool LoadShipBlueprint(MyObjectBuilder_ShipBlueprintDefinition shipBlueprint, 
+            Vector3D playerPosition, bool keepOriginalLocation, CommandContext context = null, bool force = false) {
 
             var grids = shipBlueprint.CubeGrids;
 
-            /* Where do we want to paste the grids? Lets find out. */
-            var pos = FindPastePosition(grids, playerPosition);
-            if (pos == null) {
+            if(grids == null || grids.Length == 0) {
 
-                Log.Warn("No free Space found!");
+                Log.Warn("No grids in blueprint!");
 
                 if (context != null)
-                    context.Respond("No free space available!");
+                    context.Respond("No grids in blueprint!");
 
                 return false;
             }
 
-            var newPosition = pos.Value;
 
-            /* Update GridsPosition if that doesnt work get out of here. */
-            if (!UpdateGridsPosition(grids, newPosition)) {
+            if (!keepOriginalLocation) {
 
-                if (context != null)
-                    context.Respond("The File to be imported does not seem to be compatible with the server!");
+                /* Where do we want to paste the grids? Lets find out. */
+                var pos = FindPastePosition(grids, playerPosition);
+                if (pos == null) {
 
-                return false;
+                    Log.Warn("No free Space found!");
+
+                    if (context != null)
+                        context.Respond("No free space available!");
+
+                    return false;
+                }
+
+                var newPosition = pos.Value;
+
+                /* Update GridsPosition if that doesnt work get out of here. */
+                if (!UpdateGridsPosition(grids, newPosition)) {
+
+                    if (context != null)
+                        context.Respond("The File to be imported does not seem to be compatible with the server!");
+
+                    return false;
+                }
+
+            } else if (!force) {
+
+                var sphere = FindBoundingSphere(grids);
+
+                var position = grids[0].PositionAndOrientation.Value;
+
+                sphere.Center = position.Position;
+
+                Log.Info(sphere.Radius);
+                Log.Info(sphere.Center.X);
+                Log.Info(sphere.Center.Y);
+                Log.Info(sphere.Center.Z);
+
+                List<MyEntity> entities = new List<MyEntity>();
+                MyGamePruningStructure.GetAllTopMostEntitiesInSphere(ref sphere, entities);
+
+                foreach (var entity in entities) {
+
+                    if (entity is MyCubeGrid) {
+
+                        if (context != null)
+                            context.Respond("There are potentially other grids in the way. If you are certain is free you can set 'force' to true!");
+
+                        return false;
+                    }
+                }
             }
 
             /* Remapping to prevent any key problems upon paste. */
@@ -164,6 +207,17 @@ namespace ALE_GridBackup {
 
         private static Vector3D? FindPastePosition(MyObjectBuilder_CubeGrid[] grids, Vector3D playerPosition) {
 
+            BoundingSphere sphere = FindBoundingSphere(grids);
+
+            /* 
+             * Now we know the radius that can house all grids which will now be 
+             * used to determine the perfect place to paste the grids to. 
+             */
+            return MyEntities.FindFreePlace(playerPosition, sphere.Radius);
+        }
+
+        private static BoundingSphereD FindBoundingSphere(MyObjectBuilder_CubeGrid[] grids) {
+
             Vector3? vector = null;
             float radius = 0F;
 
@@ -199,11 +253,7 @@ namespace ALE_GridBackup {
                     radius = newRadius;
             }
 
-            /* 
-             * Now we know the radius that can house all grids which will now be 
-             * used to determine the perfect place to paste the grids to. 
-             */
-            return MyEntities.FindFreePlace(playerPosition, radius);
+            return new BoundingSphereD(vector.Value, radius);
         }
     }
 }

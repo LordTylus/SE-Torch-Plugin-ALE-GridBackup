@@ -72,7 +72,7 @@ namespace ALE_GridBackup {
             if (biggestGrid == null)
                 return false;
 
-            bool hasOwners = biggestGrid.BigOwners.Count == 0;
+            bool hasOwners = biggestGrid.BigOwners.Count != 0;
 
             if(!hasOwners) {
 
