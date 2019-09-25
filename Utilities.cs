@@ -1,0 +1,75 @@
+﻿using NLog;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+
+namespace ALE_GridBackup {
+
+    class Utilities {
+
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+
+        public static string FindFolderName(DirectoryInfo[] dirList, string gridNameOrEntityId) {
+
+            if (int.TryParse(gridNameOrEntityId, out int index)) {
+
+                if (index <= dirList.Length && index >= 1) {
+
+                    var file = dirList[index - 1];
+
+                    if (file != null)
+                        return file.Name;
+                }
+            }
+
+            foreach (var file in dirList) {
+
+                var name = file.Name;
+                var lastIndex = name.LastIndexOf("_");
+
+                string gridName = name.Substring(0, lastIndex);
+                string entityId = name.Substring(lastIndex + 1, name.Length - (lastIndex + 1));
+
+                var regex = WildCardToRegular(gridNameOrEntityId);
+
+                if (Regex.IsMatch(entityId, regex))
+                    return name;
+
+                if (Regex.IsMatch(gridName, regex))
+                    return name;
+
+                if (Regex.IsMatch(name, regex))
+                    return name;
+            }
+
+            return null;
+        }
+
+        private static string WildCardToRegular(string value) {
+            return "^" + Regex.Escape(value).Replace("\\?", ".").Replace("\\*", ".*") + "$";
+        }
+
+        public static string GenerateDateString(DirectoryInfo file) {
+
+            try {
+
+                var fileList = file.GetFiles("*.*", SearchOption.TopDirectoryOnly);
+                if (fileList.Length == 0)
+                    return "";
+
+                var query = fileList.OrderByDescending(f => f.CreationTime);
+                var firstFile = query.First();
+
+                return firstFile.CreationTime.ToString("yyyy-MM-dd HH:mm:ss");
+
+            } catch (Exception e) {
+                Log.Error(e, "Error on detecting date!");
+                return "";
+            }
+        }
+    }
+}

@@ -49,12 +49,17 @@ namespace ALE_GridBackup {
 
             if (gridNameOrEntityId == null) {
 
-                foreach (var file in dirList)
-                    sb.AppendLine(file.Name);
+                int i = 1;
+                foreach (var file in dirList) {
+
+                    string dateString = Utilities.GenerateDateString(file);
+
+                    sb.AppendLine((i++) + "      " + file.Name + " - " + dateString);
+                }
 
             } else {
 
-                string folder = FindFolderName(dirList, gridNameOrEntityId);
+                string folder = Utilities.FindFolderName(dirList, gridNameOrEntityId);
 
                 gridname = folder;
 
@@ -92,30 +97,6 @@ namespace ALE_GridBackup {
             }
         }
 
-        public string FindFolderName(DirectoryInfo[] dirList, string gridNameOrEntityId) {
-
-            foreach (var file in dirList) {
-
-                var name = file.Name;
-                var lastIndex = name.LastIndexOf("_");
-
-                string gridName = name.Substring(0, lastIndex);
-                string entityId = name.Substring(lastIndex + 1, name.Length - (lastIndex + 1));
-
-                if (entityId == gridNameOrEntityId)
-                    return name;
-
-                if (Regex.IsMatch(gridName, WildCardToRegular(gridNameOrEntityId))) 
-                    return name;
-            }
-
-            return null;
-        }
-
-        private static string WildCardToRegular(string value) {
-            return "^" + Regex.Escape(value).Replace("\\?", ".").Replace("\\*", ".*") + "$";
-        }
-
         [Command("restore", "Restores the given grid from the backups.")]
         [Permission(MyPromoteLevel.SpaceMaster)]
         public void Restore(string playernameOrSteamId, string gridNameOrEntityId, int backupNumber = 1, bool keepOriginalPosition = false, bool force = false) {
@@ -135,7 +116,7 @@ namespace ALE_GridBackup {
 
             StringBuilder sb = new StringBuilder();
 
-            string folder = FindFolderName(dirList, gridNameOrEntityId);
+            string folder = Utilities.FindFolderName(dirList, gridNameOrEntityId);
 
             if (folder == null) {
                 Context.Respond("Grid not found!");
