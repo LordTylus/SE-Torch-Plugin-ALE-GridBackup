@@ -123,6 +123,7 @@
       <DependentUpon>BackupControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="BackupQueue.cs" />
+    <Compile Include="CurrentCooldown.cs" />
     <Compile Include="GridBackupPlugin.cs" />
     <Compile Include="GridFinder.cs" />
     <Compile Include="GridManager.cs" />

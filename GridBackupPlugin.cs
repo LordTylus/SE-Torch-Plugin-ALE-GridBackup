@@ -23,6 +23,8 @@ namespace ALE_GridBackup {
         private Persistent<BackupConfig> _config;
         public BackupConfig Config => _config?.Data;
 
+        public Dictionary<long, CurrentCooldown> ConfirmationsMap { get; } = new Dictionary<long, CurrentCooldown>();
+
         private readonly Stopwatch stopWatch = new Stopwatch();
         private readonly BackupQueue backupQueue;
 
@@ -103,6 +105,8 @@ namespace ALE_GridBackup {
 
                     /* If that was the last update you can stop now */
                     if (backupQueue.IsEmpty()) {
+
+                        Utilities.DeleteBackupsOlderThan(this, Config.DeleteBackupsOlderThanDays);
 
                         Log.Info("Backup took " + stopWatch.ElapsedMilliseconds + "ms (" + backupQueue.GetTimeMs() + "ms CPU)");
                         stopWatch.Restart();

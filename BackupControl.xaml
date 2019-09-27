@@ -40,51 +40,54 @@
 
         <TextBlock Grid.Column="0" Grid.Row ="0" VerticalAlignment="Center" Text="ALE Grid Backup" FontWeight="Bold" FontSize="16" Grid.ColumnSpan="2" Margin="5"/>
 
-        <TextBlock Grid.Column="0" Grid.Row ="1" VerticalAlignment="Center" Text="Folder name where the backups are saved to" Margin="5"/>
+        <TextBlock Grid.Column="0" Grid.Row ="1" VerticalAlignment="Center" Text="Folder name where the backups are saved to:" Margin="5"/>
         <TextBox Name="BackupSaveFolderName" Grid.Column="1" Grid.Row ="1" Grid.ColumnSpan="2" Margin="5" Text="{Binding BackupSaveFolderName}"/>
 
-        <TextBlock Grid.Column="0" Grid.Row ="2" VerticalAlignment="Center" Text="Backup interval in minutes" Margin="5"/>
+        <TextBlock Grid.Column="0" Grid.Row ="2" VerticalAlignment="Center" Text="Backup interval in minutes:" Margin="5"/>
         <TextBox Name="SaveIntervalMinutes" Grid.Column="1" Grid.Row ="2" Grid.ColumnSpan="2" Margin="5" Text="{Binding SaveIntervalMinutes}"/>
 
-        <TextBlock Grid.Column="0" Grid.Row ="3" VerticalAlignment="Center" Text="Number of backups per grid" Margin="5"/>
+        <TextBlock Grid.Column="0" Grid.Row ="3" VerticalAlignment="Center" Text="Number of backups per grid:" Margin="5"/>
         <TextBox Name="NumberOfBackupSaves" Grid.Column="1" Grid.Row ="3" Grid.ColumnSpan="2" Margin="5" Text="{Binding NumberOfBackupSaves}"/>
 
-        <TextBlock Grid.Column="0" Grid.Row ="4" VerticalAlignment="Center" Text="Minimum blocks for backup" Margin="5"/>
+        <TextBlock Grid.Column="0" Grid.Row ="4" VerticalAlignment="Center" Text="Minimum blocks for backup:" Margin="5"/>
         <TextBox Name="MinBlocksForBackup" Grid.Column="1" Grid.Row ="4" Grid.ColumnSpan="2" Margin="5" Text="{Binding MinBlocksForBackup}"/>
 
-        <TextBlock Grid.Column="0" Grid.Row ="5" VerticalAlignment="Center" Text="Delay (ticks) between exported grids" Margin="5"/>
+        <TextBlock Grid.Column="0" Grid.Row ="5" VerticalAlignment="Center" Text="Delay (ticks) between exported grids:" Margin="5"/>
         <TextBox Name="DelayTicksBetweenExports" Grid.Column="1" Grid.Row ="5" Grid.ColumnSpan="2" Margin="5" Text="{Binding DelayTicksBetweenExports}"/>
 
-        <TextBlock Grid.Column="0" Grid.Row ="6" VerticalAlignment="Center" Text="Keep original owners and builders in backup" Margin="5"/>
-        <CheckBox Name="KeepOriginalOwner" Grid.Column="1" Grid.Row ="6" Grid.ColumnSpan="2" Margin="5" IsChecked="{Binding KeepOriginalOwner}"/>
+        <TextBlock Grid.Column="0" Grid.Row ="6" VerticalAlignment="Center" Text="Automatically delete backups older than (days):" Margin="5"/>
+        <TextBox Name="DeleteBackupsOlderThanDays" Grid.Column="1" Grid.Row ="6" Grid.ColumnSpan="2" Margin="5" Text="{Binding DeleteBackupsOlderThanDays}"/>
         
-        <TextBlock Grid.Column="0" Grid.Row ="7" VerticalAlignment="Center" Text="Backup grids connected via connector" Margin="5"/>
-        <CheckBox Name="BackupConnections" Grid.Column="1" Grid.Row ="7" Grid.ColumnSpan="2" Margin="5" IsChecked="{Binding BackupConnections}"/>
+        <TextBlock Grid.Column="0" Grid.Row ="7" VerticalAlignment="Center" Text="Keep original owners and builders in backup" Margin="5"/>
+        <CheckBox Name="KeepOriginalOwner" Grid.Column="1" Grid.Row ="7" Grid.ColumnSpan="2" Margin="5" IsChecked="{Binding KeepOriginalOwner}"/>
+        
+        <TextBlock Grid.Column="0" Grid.Row ="8" VerticalAlignment="Center" Text="Backup grids connected via connector" Margin="5"/>
+        <CheckBox Name="BackupConnections" Grid.Column="1" Grid.Row ="8" Grid.ColumnSpan="2" Margin="5" IsChecked="{Binding BackupConnections}"/>
 
-        <TextBlock Grid.Column="0" Grid.Row ="8" VerticalAlignment="Center" Text="Backup projectors projections" Margin="5"/>
-        <CheckBox Name="BackupProjections" Grid.Column="1" Grid.Row ="8" Grid.ColumnSpan="2" Margin="5" IsChecked="{Binding BackupProjections}"/>
+        <TextBlock Grid.Column="0" Grid.Row ="9" VerticalAlignment="Center" Text="Backup projectors projections" Margin="5"/>
+        <CheckBox Name="BackupProjections" Grid.Column="1" Grid.Row ="9" Grid.ColumnSpan="2" Margin="5" IsChecked="{Binding BackupProjections}"/>
 
-        <TextBlock Grid.Column="0" Grid.Row ="9" VerticalAlignment="Center" Text="Backup nobody grids" Margin="5"/>
-        <CheckBox Name="BackupNobodyGrids" Grid.Column="1" Grid.Row ="9" Grid.ColumnSpan="2" Margin="5" IsChecked="{Binding BackupNobodyGrids}"/>
+        <TextBlock Grid.Column="0" Grid.Row ="10" VerticalAlignment="Center" Text="Backup nobody grids" Margin="5"/>
+        <CheckBox Name="BackupNobodyGrids" Grid.Column="1" Grid.Row ="10" Grid.ColumnSpan="2" Margin="5" IsChecked="{Binding BackupNobodyGrids}"/>
 
-        <Button Grid.Column="2" Grid.Row="10" Content="Save Config" Margin="6" Click="SaveButton_OnClick"></Button>
+        <Button Grid.Column="2" Grid.Row="11" Content="Save Config" Margin="6" Click="SaveButton_OnClick"></Button>
 
-        <TextBlock Grid.Column="0" Grid.Row ="11" VerticalAlignment="Top" Grid.ColumnSpan="2" Text="Commands" Margin="5" FontWeight="Bold" />
-        <TextBlock Grid.Column="0" Grid.Row ="12" VerticalAlignment="Top" Text="!gridbackup list &lt;Playername or SteamID>" Margin="5" />
-        <TextBlock Grid.Column="1" Grid.Row ="12" VerticalAlignment="Top" Grid.ColumnSpan="2" TextWrapping="Wrap" Text="List all grids stored for that player." Margin="5"/>
-        <TextBlock Grid.Column="0" Grid.Row ="13" VerticalAlignment="Top" Text="!gridbackup list &lt;Playername or SteamID>&#x0a;&lt;Gridname or EntityID>" Margin="5"/>
-        <TextBlock Grid.Column="1" Grid.Row ="13" VerticalAlignment="Top" Grid.ColumnSpan="2" TextWrapping="Wrap" Text="List all backups stored for that grid." Margin="5"/>
-        <TextBlock Grid.Column="0" Grid.Row ="14" VerticalAlignment="Top" Text="!gridbackup restore &lt;Playername or SteamID>&#x0a;&lt;Gridname or EntityID>" Margin="5"/>
-        <TextBlock Grid.Column="1" Grid.Row ="14" VerticalAlignment="Top" Grid.ColumnSpan="2" TextWrapping="Wrap" Text="Restores latest backup for that grid." Margin="5"/>
-        <TextBlock Grid.Column="0" Grid.Row ="15" VerticalAlignment="Top" Text="!gridbackup restore &lt;Playername or SteamID>&#x0a;&lt;Gridname or EntityID> &lt;Backup Number>" Margin="5"/>
-        <TextBlock Grid.Column="1" Grid.Row ="15" VerticalAlignment="Top" Grid.ColumnSpan="2" TextWrapping="Wrap" Text="Restores a specific backup for that grid." Margin="5"/>
-        <TextBlock Grid.Column="0" Grid.Row ="16" VerticalAlignment="Top" Text="!gridbackup restore &lt;Playername or SteamID>&#x0a;&lt;Gridname or EntityID> &lt;Backup Number>&#x0a;&lt;Keep original location (true/false)>" Margin="5"/>
-        <TextBlock Grid.Column="1" Grid.Row ="16" VerticalAlignment="Top" Grid.ColumnSpan="2" TextWrapping="Wrap" Text="Restores a specific backup for that grid and has the option to paste it on its original location. If location is potentially occupied it will fail." Margin="5"/>
-        <TextBlock Grid.Column="0" Grid.Row ="17" VerticalAlignment="Top" Text="!gridbackup restore &lt;Playername or SteamID>&#x0a;&lt;Gridname or EntityID> &lt;Backup Number>&#x0a;&lt;Keep original location (true/false)>&#x0a;&lt;Force paste (true/false)>" Margin="5"/>
-        <TextBlock Grid.Column="1" Grid.Row ="17" VerticalAlignment="Top" Grid.ColumnSpan="2" TextWrapping="Wrap" Text="Restores a specific backup for that grid and has the option to paste it on its original location. It ignores occupation warnings. " Margin="5"/>
-        <TextBlock Grid.Column="0" Grid.Row ="18" VerticalAlignment="Top" Text="!gridbackup save [Gridname]" Margin="5"/>
-        <TextBlock Grid.Column="1" Grid.Row ="18" VerticalAlignment="Top" Grid.ColumnSpan="2" TextWrapping="Wrap" Text="Manually triggers a backup for given grid or grid you are looking at." Margin="5"/>
-        <TextBlock Grid.Column="0" Grid.Row ="19" VerticalAlignment="Top" Text="!gridbackup run" Margin="5"/>
-        <TextBlock Grid.Column="1" Grid.Row ="19" VerticalAlignment="Top" Grid.ColumnSpan="2" TextWrapping="Wrap" Text="Manually triggers a backup for all grids." Margin="5"/>
+        <TextBlock Grid.Column="0" Grid.Row ="12" VerticalAlignment="Top" Grid.ColumnSpan="2" Text="Commands" Margin="5" FontWeight="Bold" />
+        <TextBlock Grid.Column="0" Grid.Row ="13" VerticalAlignment="Top" Text="!gridbackup list &lt;Playername or SteamID>" Margin="5" />
+        <TextBlock Grid.Column="1" Grid.Row ="13" VerticalAlignment="Top" Grid.ColumnSpan="2" TextWrapping="Wrap" Text="List all grids stored for that player." Margin="5"/>
+        <TextBlock Grid.Column="0" Grid.Row ="14" VerticalAlignment="Top" Text="!gridbackup list &lt;Playername or SteamID>&#x0a;&lt;Gridname or EntityID>" Margin="5"/>
+        <TextBlock Grid.Column="1" Grid.Row ="14" VerticalAlignment="Top" Grid.ColumnSpan="2" TextWrapping="Wrap" Text="List all backups stored for that grid." Margin="5"/>
+        <TextBlock Grid.Column="0" Grid.Row ="15" VerticalAlignment="Top" Text="!gridbackup restore &lt;Playername or SteamID>&#x0a;&lt;Gridname or EntityID>" Margin="5"/>
+        <TextBlock Grid.Column="1" Grid.Row ="15" VerticalAlignment="Top" Grid.ColumnSpan="2" TextWrapping="Wrap" Text="Restores latest backup for that grid." Margin="5"/>
+        <TextBlock Grid.Column="0" Grid.Row ="16" VerticalAlignment="Top" Text="!gridbackup restore &lt;Playername or SteamID>&#x0a;&lt;Gridname or EntityID> &lt;Backup Number>" Margin="5"/>
+        <TextBlock Grid.Column="1" Grid.Row ="16" VerticalAlignment="Top" Grid.ColumnSpan="2" TextWrapping="Wrap" Text="Restores a specific backup for that grid." Margin="5"/>
+        <TextBlock Grid.Column="0" Grid.Row ="17" VerticalAlignment="Top" Text="!gridbackup restore &lt;Playername or SteamID>&#x0a;&lt;Gridname or EntityID> &lt;Backup Number>&#x0a;&lt;Keep original location (true/false)>" Margin="5"/>
+        <TextBlock Grid.Column="1" Grid.Row ="17" VerticalAlignment="Top" Grid.ColumnSpan="2" TextWrapping="Wrap" Text="Restores a specific backup for that grid and has the option to paste it on its original location. If location is potentially occupied it will fail." Margin="5"/>
+        <TextBlock Grid.Column="0" Grid.Row ="18" VerticalAlignment="Top" Text="!gridbackup restore &lt;Playername or SteamID>&#x0a;&lt;Gridname or EntityID> &lt;Backup Number>&#x0a;&lt;Keep original location (true/false)>&#x0a;&lt;Force paste (true/false)>" Margin="5"/>
+        <TextBlock Grid.Column="1" Grid.Row ="18" VerticalAlignment="Top" Grid.ColumnSpan="2" TextWrapping="Wrap" Text="Restores a specific backup for that grid and has the option to paste it on its original location. It ignores occupation warnings. " Margin="5"/>
+        <TextBlock Grid.Column="0" Grid.Row ="19" VerticalAlignment="Top" Text="!gridbackup save [Gridname]" Margin="5"/>
+        <TextBlock Grid.Column="1" Grid.Row ="19" VerticalAlignment="Top" Grid.ColumnSpan="2" TextWrapping="Wrap" Text="Manually triggers a backup for given grid or grid you are looking at." Margin="5"/>
+        <TextBlock Grid.Column="0" Grid.Row ="20" VerticalAlignment="Top" Text="!gridbackup run" Margin="5"/>
+        <TextBlock Grid.Column="1" Grid.Row ="20" VerticalAlignment="Top" Grid.ColumnSpan="2" TextWrapping="Wrap" Text="Manually triggers a backup for all grids." Margin="5"/>
     </Grid>
 </UserControl>

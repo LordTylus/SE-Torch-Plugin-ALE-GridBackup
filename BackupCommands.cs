@@ -239,5 +239,58 @@ namespace ALE_GridBackup {
                 Log.Error(e, "Error while starting Backup");
             }
         }
+
+        [Command("clearup", "Deletes all Backups older than the given amount of days.")]
+        [Permission(MyPromoteLevel.Admin)]
+        public void Clearup(int days) {
+
+            try {
+
+                if(days <= 0) {
+                    Context.Respond("Days "+days+" is invalid. It must be positive and non zero.");
+                    return;
+                }
+
+                long executingPlayerId = 0L;
+                if (Context.Player != null)
+                    executingPlayerId = Context.Player.IdentityId;
+
+                string command = "Clearup_"+ days;
+
+                var confirmationCooldownMap = Plugin.ConfirmationsMap;
+
+                if (confirmationCooldownMap.TryGetValue(executingPlayerId, out CurrentCooldown confirmationCooldown)) {
+
+                    long remainingSeconds = confirmationCooldown.GetRemainingSeconds(command);
+
+                    if (remainingSeconds == 0) {
+
+                        Context.Respond("Are you sure you want to delete all Backups older than "+ days + " days? Enter the command again within 30 seconds to confirm.");
+                        confirmationCooldown.StartCooldown(command);
+
+                        return;
+                    }
+
+                } else {
+
+                    confirmationCooldown = new CurrentCooldown(30*1000);
+                    confirmationCooldownMap.Add(executingPlayerId, confirmationCooldown);
+
+                    Context.Respond("Are you sure you want to delete all Backups older than " + days + " days? Enter the command again within 30 seconds to confirm.");
+                    confirmationCooldown.StartCooldown(command);
+
+                    return;
+                }
+
+                confirmationCooldownMap.Remove(executingPlayerId);
+
+                Utilities.DeleteBackupsOlderThan(Plugin, days);
+
+                Context.Respond("Started deleting of backups older than "+days+" days.");
+
+            } catch (Exception e) {
+                Log.Error(e, "Error while starting Backup");
+            }
+        }
     }
 }

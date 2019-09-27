@@ -1,4 +1,5 @@
 ﻿using NLog;
+using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -70,6 +71,54 @@ namespace ALE_GridBackup {
                 Log.Error(e, "Error on detecting date!");
                 return "";
             }
+        }
+
+        internal static void DeleteBackupsOlderThan(GridBackupPlugin plugin, int deleteBackupsOlderThanDays) {
+
+            if (deleteBackupsOlderThanDays <= 0)
+                return;
+
+            MyAPIGateway.Parallel.StartBackground(() => {
+
+                Log.Info("Start deleting backups older than " + deleteBackupsOlderThanDays + " days were deleted.");
+
+                string path = plugin.CreatePath();
+
+                DirectoryInfo dir = new DirectoryInfo(path);
+                var directoryList = dir.GetDirectories("*", SearchOption.TopDirectoryOnly);
+
+                var checkTime = DateTime.Now.AddDays(-deleteBackupsOlderThanDays);
+
+                foreach (var playerDir in directoryList) {
+
+                    var gridList = playerDir.GetDirectories("*", SearchOption.TopDirectoryOnly);
+
+                    foreach (var gridDir in gridList) {
+
+                        try {
+
+                            var fileList = gridDir.GetFiles("*.*", SearchOption.TopDirectoryOnly);
+
+                            foreach (var file in fileList) {
+
+                                if (file.CreationTime < checkTime)
+                                    file.Delete();
+                            }
+
+                            if (gridDir.GetFileSystemInfos("*", SearchOption.TopDirectoryOnly).Length == 0)
+                                gridDir.Delete(false);
+
+                        } catch (Exception e) {
+                            Log.Error(e, "Error on deleting backups older than " + deleteBackupsOlderThanDays + " days!");
+                        }
+                    }
+
+                    if (playerDir.GetFileSystemInfos("*", SearchOption.TopDirectoryOnly).Length == 0)
+                        playerDir.Delete(false);
+                }
+
+                Log.Info("Backups older than "+deleteBackupsOlderThanDays+" days were deleted.");
+            });
         }
     }
 }
