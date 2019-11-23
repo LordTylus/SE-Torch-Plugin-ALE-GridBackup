@@ -1,5 +1,6 @@
-﻿using NLog;
-using Sandbox.Game;
+﻿using ALE_Core;
+using ALE_Core.Utils;
+using NLog;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.World;
@@ -8,8 +9,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
-using Torch.API.Managers;
 using Torch.Commands;
 using Torch.Commands.Permissions;
 using Torch.Mod;

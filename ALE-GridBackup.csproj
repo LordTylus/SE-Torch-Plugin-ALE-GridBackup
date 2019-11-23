@@ -123,11 +123,7 @@
       <DependentUpon>BackupControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="BackupQueue.cs" />
-    <Compile Include="CurrentCooldown.cs" />
     <Compile Include="GridBackupPlugin.cs" />
-    <Compile Include="GridFinder.cs" />
-    <Compile Include="GridManager.cs" />
-    <Compile Include="PlayerUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -156,6 +152,12 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\ALE-Core\ALE-Core\ALE-Core.csproj">
+      <Project>{ffa23b37-f464-45da-ab5a-a907483b39f6}</Project>
+      <Name>ALE-Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
