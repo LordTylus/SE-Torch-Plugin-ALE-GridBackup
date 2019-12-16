@@ -1,4 +1,7 @@
 
+ALE-Core/
+GameBinaries/
+TorchBinaries/
 bin/
 obj/
 Properties/

@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.29102.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ALE-GridBackup", "ALE-GridBackup.csproj", "{5C189F6D-588B-43E1-8130-5883667AD3D3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ALE-Core", "..\..\ALE-Core\ALE-Core\ALE-Core.csproj", "{FFA23B37-F464-45DA-AB5A-A907483B39F6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ALE-Core", "ALE-Core\ALE-Core.csproj", "{FFA23B37-F464-45DA-AB5A-A907483B39F6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
