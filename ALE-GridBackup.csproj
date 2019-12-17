@@ -185,14 +185,9 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="ALE-Core\ALE-Core.csproj">
-      <Project>{ffa23b37-f464-45da-ab5a-a907483b39f6}</Project>
-      <Name>ALE-Core</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="manifest.xml" />
   </ItemGroup>
+  <Import Project="ALE-Core\ALE-Core.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy /y /d  "$(ProjectDir)manifest.xml" "$(ProjectDir)$(OutDir)"

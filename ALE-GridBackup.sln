@@ -5,9 +5,13 @@ VisualStudioVersion = 16.0.29102.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ALE-GridBackup", "ALE-GridBackup.csproj", "{5C189F6D-588B-43E1-8130-5883667AD3D3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ALE-Core", "ALE-Core\ALE-Core.csproj", "{FFA23B37-F464-45DA-AB5A-A907483B39F6}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "ALE-Core", "ALE-Core\ALE-Core.shproj", "{6692DDE3-BD7D-4239-9230-FDD834526DB2}"
 EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		ALE-Core\ALE-Core.projitems*{5c189f6d-588b-43e1-8130-5883667ad3d3}*SharedItemsImports = 4
+		ALE-Core\ALE-Core.projitems*{6692dde3-bd7d-4239-9230-fdd834526db2}*SharedItemsImports = 13
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -17,10 +21,6 @@ Global
 		{5C189F6D-588B-43E1-8130-5883667AD3D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5C189F6D-588B-43E1-8130-5883667AD3D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5C189F6D-588B-43E1-8130-5883667AD3D3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FFA23B37-F464-45DA-AB5A-A907483B39F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FFA23B37-F464-45DA-AB5A-A907483B39F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FFA23B37-F464-45DA-AB5A-A907483B39F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FFA23B37-F464-45DA-AB5A-A907483B39F6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
