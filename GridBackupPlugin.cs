@@ -1,4 +1,5 @@
 ﻿using ALE_Core;
+using ALE_Core.Utils;
 using NLog;
 using Sandbox.Game.World;
 using System;
@@ -174,7 +175,23 @@ namespace ALE_GridBackup {
 
         public string CreatePathForPlayer(string path, long playerId) {
 
-            var folder = Path.Combine(path, playerId.ToString());
+            string folderName = playerId.ToString();
+
+            if (Config.PlayerNameOnFolders) {
+
+                /* 
+                 * Usually all calling locations could deal with a MyIdentity instead.
+                 * But I dont want to deal with NULL values to get Nobody Grids exported. 
+                 */
+                string playerName = PlayerUtils.GetPlayerNameById(playerId);
+
+                foreach (var c in Path.GetInvalidFileNameChars())
+                    playerName = playerName.Replace(c, '_');
+
+                folderName = playerName + "_" + folderName;
+            }
+
+            var folder = Path.Combine(path, folderName);
             Directory.CreateDirectory(folder);
 
             return folder;
