@@ -15,6 +15,7 @@ namespace ALE_GridBackup {
         private bool _backupConnections = false;
         private bool _backupProjections = false;
         private bool _backupNobodyGrids = false;
+        private bool _backupNpcGrids = false;
 
         public string BackupSaveFolderName { get => _folderName; set => SetValue(ref _folderName, value); }
         public bool PlayerNameOnFolders { get => _playerNameOnFolders; set => SetValue(ref _playerNameOnFolders, value); }
@@ -27,5 +28,6 @@ namespace ALE_GridBackup {
         public bool BackupConnections { get => _backupConnections; set => SetValue(ref _backupConnections, value); }
         public bool BackupProjections { get => _backupProjections; set => SetValue(ref _backupProjections, value); }
         public bool BackupNobodyGrids { get => _backupNobodyGrids; set => SetValue(ref _backupNobodyGrids, value); }
+        public bool BackupNpcGrids { get => _backupNpcGrids; set => SetValue(ref _backupNpcGrids, value); }
     }
 }

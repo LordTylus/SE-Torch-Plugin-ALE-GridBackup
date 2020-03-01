@@ -150,8 +150,18 @@ namespace ALE_GridBackup {
 
             HashSet<long> playerIDs = new HashSet<long>();
 
-            foreach (var identity in MySession.Static.Players.GetAllIdentities())
-                playerIDs.Add(identity.IdentityId);
+            foreach (var identity in MySession.Static.Players.GetAllIdentities()) {
+
+                long identityId = identity.IdentityId;
+
+                bool isNpc = MySession.Static.Players.IdentityIsNpc(identityId);
+
+                /* We ignore NPCs unless the config says we need to take them with us */
+                if (isNpc && !Config.BackupNpcGrids)
+                    continue;
+
+                playerIDs.Add(identityId);
+            }
 
             /* If we want to use Nobody Grids add nobody to the list */
             if (Config.BackupNobodyGrids)
