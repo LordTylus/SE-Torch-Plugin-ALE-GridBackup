@@ -4,6 +4,6 @@ GameBinaries/
 TorchBinaries/
 bin/
 obj/
-Properties/
+.svn/
 .git/
 .vs/
