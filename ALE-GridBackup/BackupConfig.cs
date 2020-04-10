@@ -8,6 +8,7 @@ namespace ALE_GridBackup {
         private bool _playerNameOnFolders = false;
         private int _saveIntervalMinutes = 30;
         private int _numberOfBackupSaves = 5;
+        private int _numberOfDailyBackupSaves = 0;
         private int _minBlocksForBackup = 20;
         private int _delayTicksBetweenExports = 1;
         private int _deleteBackupsOlderThanDays = 10;
@@ -21,6 +22,7 @@ namespace ALE_GridBackup {
         public bool PlayerNameOnFolders { get => _playerNameOnFolders; set => SetValue(ref _playerNameOnFolders, value); }
         public int SaveIntervalMinutes { get => _saveIntervalMinutes; set => SetValue(ref _saveIntervalMinutes, value); }
         public int NumberOfBackupSaves { get => _numberOfBackupSaves; set => SetValue(ref _numberOfBackupSaves, value); }
+        public int NumberOfDailyBackupSaves { get => _numberOfDailyBackupSaves; set => SetValue(ref _numberOfDailyBackupSaves, value); }
         public int MinBlocksForBackup { get => _minBlocksForBackup; set => SetValue(ref _minBlocksForBackup, value); }
         public int DelayTicksBetweenExports { get => _delayTicksBetweenExports; set => SetValue(ref _delayTicksBetweenExports, value); }
         public int DeleteBackupsOlderThanDays { get => _deleteBackupsOlderThanDays; set => SetValue(ref _deleteBackupsOlderThanDays, value); }

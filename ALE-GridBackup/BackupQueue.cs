@@ -16,6 +16,8 @@ namespace ALE_GridBackup {
 
         public static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
+        private static readonly string DAILY_PRAEFIX = "daily";
+
         private readonly Stopwatch stopwatch = new Stopwatch();
         private readonly GridBackupPlugin Plugin;
         private readonly Stack<long> stack = new Stack<long>();
@@ -163,6 +165,15 @@ namespace ALE_GridBackup {
 
                 string pathForGrid = plugin.CreatePathForGrid(pathForPlayer, gridName, entityId);
                 string fileName = DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".sbc";
+                string fileNameDaily = DAILY_PRAEFIX+"_" +DateTime.Now.ToString("yyyy_MM_dd") + ".sbc";
+
+                if (plugin.Config.NumberOfDailyBackupSaves > 0) {
+
+                    string dailyFile = Path.Combine(pathForGrid, fileNameDaily);
+
+                    if (!File.Exists(dailyFile))
+                        GridManager.SaveGrid(dailyFile, gridName, plugin.Config.KeepOriginalOwner, plugin.Config.BackupProjections, objectBuilders);
+                }
 
                 string pathForFile = Path.Combine(pathForGrid, fileName);
 
@@ -186,10 +197,25 @@ namespace ALE_GridBackup {
 
             var query = fileList.OrderByDescending(file => file.CreationTime);
             int numberOfFilesToKeep = plugin.Config.NumberOfBackupSaves;
+            int numberOfDailyFilesToKeep = plugin.Config.NumberOfDailyBackupSaves;
+
+            List<FileInfo> dailyFiles = new List<FileInfo>();
 
             int i = 0;
-            foreach (var file in query)
+            foreach (var file in query) {
+
+                if(file.Name.StartsWith(DAILY_PRAEFIX)) {
+                    dailyFiles.Add(file);
+                    continue;
+                }
+
                 if (i++ >= numberOfFilesToKeep)
+                    file.Delete();
+            }
+
+            i = 0;
+            foreach (var file in dailyFiles) 
+                if (i++ >= numberOfDailyFilesToKeep)
                     file.Delete();
         }
     }
