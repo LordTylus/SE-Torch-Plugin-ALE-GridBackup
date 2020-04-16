@@ -1,4 +1,5 @@
-﻿using ALE_Core.GridExport;
+﻿using ALE_Core.Cooldown;
+using ALE_Core.GridExport;
 using ALE_Core.Utils;
 using NLog;
 using Sandbox.Game.Entities;
@@ -275,14 +276,16 @@ namespace ALE_GridBackup {
 
         private bool CheckConformation(ulong steamId, long days, string command) {
 
+            var cooldownKey = new SteamIdCooldownKey(steamId);
+
             var cooldownManager = Plugin.CooldownManager;
-            if (!cooldownManager.CheckCooldown(steamId, command, out _)) {
-                cooldownManager.StopCooldown(steamId);
+            if (!cooldownManager.CheckCooldown(cooldownKey, command, out _)) {
+                cooldownManager.StopCooldown(cooldownKey);
                 return true;
             }
 
             Context.Respond("Are you sure you want to delete all Backups older than " + days + " days? Enter the command again within 30 seconds to confirm.");
-            cooldownManager.StartCooldown(steamId, command, 30 * 1000);
+            cooldownManager.StartCooldown(cooldownKey, command, 30 * 1000);
 
             return false;
         }
