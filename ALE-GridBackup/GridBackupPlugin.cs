@@ -1,4 +1,4 @@
-﻿using ALE_Core;
+﻿using ALE_Core.Cooldown;
 using ALE_Core.Utils;
 using NLog;
 using Sandbox.Game.World;
@@ -25,7 +25,7 @@ namespace ALE_GridBackup {
         private Persistent<BackupConfig> _config;
         public BackupConfig Config => _config?.Data;
 
-        public Dictionary<long, CurrentCooldown> ConfirmationsMap { get; } = new Dictionary<long, CurrentCooldown>();
+        public CooldownManager CooldownManager { get; } = new CooldownManager();
 
         private readonly Stopwatch stopWatch = new Stopwatch();
         private readonly BackupQueue backupQueue;

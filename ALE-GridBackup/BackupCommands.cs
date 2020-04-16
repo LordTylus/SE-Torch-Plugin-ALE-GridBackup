@@ -1,4 +1,4 @@
-﻿using ALE_Core;
+﻿using ALE_Core.GridExport;
 using ALE_Core.Utils;
 using NLog;
 using Sandbox.Game.Entities;
@@ -156,10 +156,17 @@ namespace ALE_GridBackup {
                 playerPosition = executingPlayer.Character.PositionComp.GetPosition();
             }
 
-            if(GridManager.LoadGrid(path, playerPosition, keepOriginalPosition, force, Context))
+            var result = GridManager.LoadGrid(path, playerPosition, keepOriginalPosition, force);
+
+            if (result == GridImportResult.OK) {
+
                 Context.Respond("Restore Complete!");
-            else
+
+            } else {
+
+                GridImportResultWriter.WriteResult(Context, result);
                 Context.Respond("Restore Failed!");
+            }
         }
 
         [Command("save", "Saves the grid defined by name, or you are looking at manually.")]
@@ -250,38 +257,12 @@ namespace ALE_GridBackup {
                     return;
                 }
 
-                long executingPlayerId = 0L;
-                if (Context.Player != null)
-                    executingPlayerId = Context.Player.IdentityId;
+                ulong steamId = PlayerUtils.GetSteamId(Context.Player);
 
                 string command = "Clearup_"+ days;
 
-                var confirmationCooldownMap = Plugin.ConfirmationsMap;
-
-                if (confirmationCooldownMap.TryGetValue(executingPlayerId, out CurrentCooldown confirmationCooldown)) {
-
-                    long remainingSeconds = confirmationCooldown.GetRemainingSeconds(command);
-
-                    if (remainingSeconds == 0) {
-
-                        Context.Respond("Are you sure you want to delete all Backups older than "+ days + " days? Enter the command again within 30 seconds to confirm.");
-                        confirmationCooldown.StartCooldown(command);
-
-                        return;
-                    }
-
-                } else {
-
-                    confirmationCooldown = new CurrentCooldown(30*1000);
-                    confirmationCooldownMap.Add(executingPlayerId, confirmationCooldown);
-
-                    Context.Respond("Are you sure you want to delete all Backups older than " + days + " days? Enter the command again within 30 seconds to confirm.");
-                    confirmationCooldown.StartCooldown(command);
-
+                if (!CheckConformation(steamId, days, command))
                     return;
-                }
-
-                confirmationCooldownMap.Remove(executingPlayerId);
 
                 Utilities.DeleteBackupsOlderThan(Plugin, days);
 
@@ -290,6 +271,20 @@ namespace ALE_GridBackup {
             } catch (Exception e) {
                 Log.Error(e, "Error while starting Backup");
             }
+        }
+
+        private bool CheckConformation(ulong steamId, long days, string command) {
+
+            var cooldownManager = Plugin.CooldownManager;
+            if (!cooldownManager.CheckCooldown(steamId, command, out _)) {
+                cooldownManager.StopCooldown(steamId);
+                return true;
+            }
+
+            Context.Respond("Are you sure you want to delete all Backups older than " + days + " days? Enter the command again within 30 seconds to confirm.");
+            cooldownManager.StartCooldown(steamId, command, 30 * 1000);
+
+            return false;
         }
     }
 }
