@@ -20,7 +20,7 @@ using VRageMath;
 namespace ALE_GridBackup {
 
     [Category("gridbackup")]
-    public class TestCommands : CommandModule {
+    public class BackupCommands : CommandModule {
 
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
@@ -157,16 +157,26 @@ namespace ALE_GridBackup {
                 playerPosition = executingPlayer.Character.PositionComp.GetPosition();
             }
 
+            var executor = Context.Player;
+            var executerName = "Server";
+
+            if (executor != null)
+                executerName = executor.DisplayName;
+
             var result = GridManager.LoadGrid(path, playerPosition, keepOriginalPosition, force);
 
             if (result == GridImportResult.OK) {
 
-                Context.Respond("Restore Complete!");
+                Log.Info(executerName+" restored backup from path: "+ path);
+                
+                Context.Respond("Restored "+ file.Name + " successfully!");
 
             } else {
 
+                Log.Info(executerName + " failed to restore backup from path: " + path);
+
                 GridImportResultWriter.WriteResult(Context, result);
-                Context.Respond("Restore Failed!");
+                Context.Respond("Restore of " + file.Name + " failed!");
             }
         }
 
