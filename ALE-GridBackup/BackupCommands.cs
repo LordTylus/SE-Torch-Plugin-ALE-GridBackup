@@ -235,7 +235,7 @@ namespace ALE_GridBackup {
             else
                 playerId = biggestGrid.BigOwners[0];
 
-            if (BackupQueue.BackupSignleGridStatic(playerId, grids, Plugin.CreatePath(), null, Plugin, false))
+            if (BackupQueue.BackupSingleGridStatic(playerId, grids, Plugin.CreatePath(), null, Plugin, false))
                 Context.Respond("Export Complete!");
             else
                 Context.Respond("Export Failed!");

@@ -97,10 +97,10 @@ namespace ALE_GridBackup {
         }
 
         public bool BackupSignleGrid(long playerId, List<MyCubeGrid> grids, string path) {
-            return BackupSignleGridStatic(playerId, grids, path, alreadyExportedGrids, Plugin);
+            return BackupSingleGridStatic(playerId, grids, path, alreadyExportedGrids, Plugin);
         }
 
-        public static bool BackupSignleGridStatic(long playerId, List<MyCubeGrid> grids,
+        public static bool BackupSingleGridStatic(long playerId, List<MyCubeGrid> grids,
             string path, HashSet<long> alreadyExportedGrids, GridBackupPlugin plugin, bool background = true) {
 
             MyCubeGrid biggestGrid = null;
