@@ -80,7 +80,7 @@ namespace ALE_GridBackup {
                          * If true is returned we added a new grid to the list and therefore
                          * end this tick.
                          */
-                        if(BackupSignleGrid(playerId, grids, path))
+                        if(BackupSingleGrid(playerId, grids, path))
                             return;
 
                     } catch (Exception e) {
@@ -96,7 +96,7 @@ namespace ALE_GridBackup {
             }
         }
 
-        public bool BackupSignleGrid(long playerId, List<MyCubeGrid> grids, string path) {
+        public bool BackupSingleGrid(long playerId, List<MyCubeGrid> grids, string path) {
             return BackupSingleGridStatic(playerId, grids, path, alreadyExportedGrids, Plugin);
         }
 
