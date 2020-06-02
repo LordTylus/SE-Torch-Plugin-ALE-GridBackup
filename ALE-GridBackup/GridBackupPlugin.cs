@@ -86,12 +86,6 @@ namespace ALE_GridBackup {
 
             try {
 
-                int intervalMinutes = Config.SaveIntervalMinutes;
-
-                /* interval of 0 is disabled */
-                if (intervalMinutes == 0)
-                    return;
-
                 /* stopWatch not running? Nothing to do */
                 if (!stopWatch.IsRunning)
                     return;
@@ -115,9 +109,15 @@ namespace ALE_GridBackup {
                     }
 
                     return;
-                } 
+                }
 
                 /* if our queue was empty use normal procedure */
+
+                int intervalMinutes = Config.SaveIntervalMinutes;
+
+                /* interval of 0 is disabled */
+                if (intervalMinutes == 0)
+                    return;
 
                 /* Time not elapsed? Nothing to do */
                 var elapsed = stopWatch.Elapsed;
