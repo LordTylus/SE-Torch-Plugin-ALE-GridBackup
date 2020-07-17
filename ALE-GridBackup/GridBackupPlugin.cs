@@ -242,8 +242,8 @@ namespace ALE_GridBackup {
         /// <param name="grids">The list of connected grids you want to backup</param>
         /// <param name="biggestGrid">Out: Biggest grid of the group (the one which name and ID is used in the folder structure)</param>
         /// <param name="playerId">Out: Player ID that owns the biggest grid in the group. 0 if nobody, -1 if there is no biggest grid. Commonly happening when List is empty</param>
-        /// <param name="context">Optiona: When called via command context it may output stuff to the console</param>
-        /// <returns>true if and only of the grids were saved correctly. false otherwise.</returns>
+        /// <param name="context">Optional: When called via command context it may output stuff to the console</param>
+        /// <returns>true if and only if the grids were saved correctly. false otherwise.</returns>
         public bool BackupGridsManually(List<MyCubeGrid> grids, out MyCubeGrid biggestGrid, out long playerId, CommandContext context = null) {
 
             biggestGrid = null;
