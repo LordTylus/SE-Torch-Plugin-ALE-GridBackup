@@ -215,27 +215,7 @@ namespace ALE_GridBackup {
                 return;
             }
 
-            MyCubeGrid biggestGrid = null;
-
-            foreach (var grid in grids)
-                if (biggestGrid == null || biggestGrid.BlocksCount < grid.BlocksCount)
-                    biggestGrid = grid;
-
-            /* No biggest grid should not be possible, unless the gridgroup only had projections -.- just skip it. */
-            if (biggestGrid == null) {
-                Context.Respond("Grid incompatible!");
-                return;
-            }
-
-            long playerId;
-
-            /* No owner at all? hard to believe. but okay skip it. */
-            if (biggestGrid.BigOwners.Count == 0)
-                playerId = 0;
-            else
-                playerId = biggestGrid.BigOwners[0];
-
-            if (BackupQueue.BackupSingleGridStatic(playerId, grids, Plugin.CreatePath(), null, Plugin, false))
+            if (Plugin.BackupGridsManually(grids, out MyCubeGrid biggestGrid, out long playerId, Context))
                 Context.Respond("Export Complete for Grid "+biggestGrid.DisplayName+" (EntityID: #"+biggestGrid.EntityId+") for PlayerID: #"+ playerId);
             else
                 Context.Respond("Export Failed!");

@@ -1,6 +1,7 @@
 ﻿using ALE_Core.Cooldown;
 using ALE_Core.Utils;
 using NLog;
+using Sandbox.Game.Entities;
 using Sandbox.Game.World;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ using Torch.API;
 using Torch.API.Managers;
 using Torch.API.Plugins;
 using Torch.API.Session;
+using Torch.Commands;
 using Torch.Session;
 
 namespace ALE_GridBackup {
@@ -225,6 +227,49 @@ namespace ALE_GridBackup {
             } catch (IOException e) {
                 Log.Warn(e, "Configuration failed to save");
             }
+        }
+
+        /// <summary>
+        /// This Methods allows to Backup 1 Grid and all of its subgrids. 
+        /// 
+        /// The Grids are just taken and backed up as is. So its up to the caller to filter "connected"
+        /// grids, or make sure the grids are connected in the first place. If two Separate grids are
+        /// put in there they *can* be backed up, however it may cause problems upon restoring them.
+        /// 
+        /// This Method must be called on game thread in order to work, as the internal generation of
+        /// ObjectBuilders must be called from game thread. The method itself does not check for it.
+        /// </summary>
+        /// <param name="grids">The list of connected grids you want to backup</param>
+        /// <param name="biggestGrid">Out: Biggest grid of the group (the one which name and ID is used in the folder structure)</param>
+        /// <param name="playerId">Out: Player ID that owns the biggest grid in the group. 0 if nobody, -1 if there is no biggest grid. Commonly happening when List is empty</param>
+        /// <param name="context">Optiona: When called via command context it may output stuff to the console</param>
+        /// <returns>true if and only of the grids were saved correctly. false otherwise.</returns>
+        public bool BackupGridsManually(List<MyCubeGrid> grids, out MyCubeGrid biggestGrid, out long playerId, CommandContext context = null) {
+
+            biggestGrid = null;
+
+            foreach (var grid in grids)
+                if (biggestGrid == null || biggestGrid.BlocksCount < grid.BlocksCount)
+                    biggestGrid = grid;
+
+            /* No biggest grid should not be possible, unless the gridgroup only had projections -.- just skip it. */
+            if (biggestGrid == null) {
+
+                if(context != null)
+                    context.Respond("Grid incompatible!");
+
+                playerId = -1;
+
+                return false;
+            }
+
+            /* No owner at all? hard to believe. but okay. */
+            if (biggestGrid.BigOwners.Count == 0)
+                playerId = 0;
+            else
+                playerId = biggestGrid.BigOwners[0];
+
+            return BackupQueue.BackupSingleGridStatic(playerId, grids, CreatePath(), null, this, false);
         }
     }
 }
