@@ -288,7 +288,7 @@ namespace ALE_GridBackup {
         /// <param name="grids">The list of connected grid ObjectBuilders you want to backup</param>
         /// <param name="identityId">IdentityID of the biggest owner of the grid. Can be 0 if nobody owns it.</param>
         /// <returns>true if and only if the grids were saved correctly. false otherwise.</returns>
-        public bool BackupGridsManually(List<MyObjectBuilder_CubeGrid> grids, long identityId) {
+        public bool BackupGridsManuallyWithBuilders(List<MyObjectBuilder_CubeGrid> grids, long identityId) {
 
             if (grids == null || grids.Count == 0) {
                 Log.Warn("Grids for manual backup empty!");
