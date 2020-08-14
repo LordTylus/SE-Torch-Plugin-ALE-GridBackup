@@ -15,6 +15,7 @@ using Torch.API.Plugins;
 using Torch.API.Session;
 using Torch.Commands;
 using Torch.Session;
+using VRage.Game;
 
 namespace ALE_GridBackup {
     public class GridBackupPlugin : TorchPluginBase, IWpfPlugin {
@@ -270,6 +271,31 @@ namespace ALE_GridBackup {
                 playerId = biggestGrid.BigOwners[0];
 
             return BackupQueue.BackupSingleGridStatic(playerId, grids, CreatePath(), null, this, false);
+        }
+
+        /// <summary>
+        /// This Methods allows to Backup 1 Grid and all of its subgrids. 
+        /// 
+        /// The Grids are just taken and backed up as is. So its up to the caller to filter "connected"
+        /// grids, or make sure the grids are connected in the first place. If two Separate grids are
+        /// put in there they *can* be backed up, however it may cause problems upon restoring them.
+        /// 
+        /// Since this Method already uses ObjectBuilders it is not needed to run on Main-Thread and 
+        /// also not adviced as Writing XML to disk could take a few millisecond longer. 
+        /// 
+        /// Apart from that no parallelization is done so there wont be any parallel task started or anything. 
+        /// </summary>
+        /// <param name="grids">The list of connected grid ObjectBuilders you want to backup</param>
+        /// <param name="identityId">IdentityID of the biggest owner of the grid. Can be 0 if nobody owns it.</param>
+        /// <returns>true if and only if the grids were saved correctly. false otherwise.</returns>
+        public bool BackupGridsManually(List<MyObjectBuilder_CubeGrid> grids, long identityId) {
+
+            if (grids == null || grids.Count == 0) {
+                Log.Warn("Grids for manual backup empty!");
+                return false;
+            }
+
+            return BackupQueue.BackupSingleGridStatic(identityId, grids, CreatePath(), this);
         }
     }
 }

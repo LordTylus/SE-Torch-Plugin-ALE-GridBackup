@@ -145,24 +145,55 @@ namespace ALE_GridBackup {
             if(background) {
 
                 MyAPIGateway.Parallel.StartBackground(() => {
-                    BackupGrid(playerId, path, plugin, biggestGrid, entityId, objectBuilders);
+                    BackupGrid(playerId, path, plugin, biggestGrid.DisplayName, entityId, objectBuilders);
                 });
 
             } else {
 
-                return BackupGrid(playerId, path, plugin, biggestGrid, entityId, objectBuilders);
+                return BackupGrid(playerId, path, plugin, biggestGrid.DisplayName, entityId, objectBuilders);
             }
 
             return true;
         }
 
-        private static bool BackupGrid(long playerId, string path, GridBackupPlugin plugin, MyCubeGrid biggestGrid, long entityId, List<MyObjectBuilder_CubeGrid> objectBuilders) {
+        public static bool BackupSingleGridStatic(long playerId, List<MyObjectBuilder_CubeGrid> grids, string path, GridBackupPlugin plugin) {
+
+            MyObjectBuilder_CubeGrid biggestGrid = null;
+            int blockOnBiggestGrid = 0;
+            long blockCount = 0;
+
+            foreach (var grid in grids) {
+
+                int blocksOnGrid = grid.CubeBlocks != null ? grid.CubeBlocks.Count : 0;
+
+                blockCount += blocksOnGrid;
+
+                if (biggestGrid == null || blocksOnGrid > blockOnBiggestGrid) {
+                    biggestGrid = grid;
+                    blockOnBiggestGrid = blocksOnGrid;
+                }
+            }
+
+            if(biggestGrid == null) {
+                Log.Warn("Could not find biggest grid in list for manual backups!");
+                return false;
+            }
+
+            /* To little blocks... ignore */
+            if (blockCount < plugin.Config.MinBlocksForBackup)
+                return true;
+
+            long entityId = biggestGrid.EntityId;
+            string displayName = biggestGrid.DisplayName;
+
+            return BackupGrid(playerId, path, plugin, displayName, entityId, grids);
+        }
+
+        private static bool BackupGrid(long playerId, string path, GridBackupPlugin plugin, string gridName, long entityId, List<MyObjectBuilder_CubeGrid> objectBuilders) {
 
             try {
 
                 string pathForPlayer = plugin.CreatePathForPlayer(path, playerId);
-
-                string gridName = biggestGrid.DisplayName;
 
                 string pathForGrid = plugin.CreatePathForGrid(pathForPlayer, gridName, entityId);
                 string fileName = DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".sbc";
