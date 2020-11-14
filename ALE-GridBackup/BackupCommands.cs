@@ -81,7 +81,7 @@ namespace ALE_GridBackup {
 
             if (Context.Player == null) {
 
-                Context.Respond($"Backed up Grids for Player {player.DisplayName}");
+                Context.Respond($"Backed up Grids for Player {player.DisplayName} #{player.IdentityId}");
 
                 if(gridname != null)
                     Context.Respond($"Grid {gridname}");
@@ -93,7 +93,7 @@ namespace ALE_GridBackup {
                 if (gridname != null)
                     ModCommunication.SendMessageTo(new DialogMessage("Backed up Grids", $"Grid {gridname}", sb.ToString()), Context.Player.SteamUserId);
                 else
-                    ModCommunication.SendMessageTo(new DialogMessage("Backed up Grids", $"Player {player.DisplayName}", sb.ToString()), Context.Player.SteamUserId);
+                    ModCommunication.SendMessageTo(new DialogMessage("Backed up Grids", $"Player {player.DisplayName} #{player.IdentityId}", sb.ToString()), Context.Player.SteamUserId);
             }
         }
 
