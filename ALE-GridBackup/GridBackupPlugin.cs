@@ -188,7 +188,18 @@ namespace ALE_GridBackup {
 
         public string CreatePathForPlayer(string path, long playerId) {
 
-            string folderName = playerId.ToString();
+            string folderName;
+
+            if (Config.UseSteamId) {
+
+                ulong steamId = MySession.Static.Players.TryGetSteamId(playerId);
+
+                folderName = steamId.ToString();
+
+            } else {
+
+                folderName = playerId.ToString();
+            }
 
             if (Config.PlayerNameOnFolders) {
 

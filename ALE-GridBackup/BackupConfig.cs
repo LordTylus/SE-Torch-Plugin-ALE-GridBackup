@@ -6,6 +6,7 @@ namespace ALE_GridBackup {
 
         private string _folderName = "GridBackups";
         private bool _playerNameOnFolders = false;
+        private bool _useSteamId = false;
         private int _saveIntervalMinutes = 30;
         private int _numberOfBackupSaves = 5;
         private int _numberOfDailyBackupSaves = 0;
@@ -20,6 +21,7 @@ namespace ALE_GridBackup {
 
         public string BackupSaveFolderName { get => _folderName; set => SetValue(ref _folderName, value); }
         public bool PlayerNameOnFolders { get => _playerNameOnFolders; set => SetValue(ref _playerNameOnFolders, value); }
+        public bool UseSteamId { get => _useSteamId; set => SetValue(ref _useSteamId, value); }
         public int SaveIntervalMinutes { get => _saveIntervalMinutes; set => SetValue(ref _saveIntervalMinutes, value); }
         public int NumberOfBackupSaves { get => _numberOfBackupSaves; set => SetValue(ref _numberOfBackupSaves, value); }
         public int NumberOfDailyBackupSaves { get => _numberOfDailyBackupSaves; set => SetValue(ref _numberOfDailyBackupSaves, value); }
