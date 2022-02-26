@@ -185,13 +185,13 @@ namespace ALE_GridBackup {
             if (Context.Player == null) {
 
                 Context.Respond($"Find results");
-                Context.Respond($"for grids maching {gridNameOrEntityId}");
+                Context.Respond($"for grids matching {gridNameOrEntityId}");
 
                 Context.Respond(sb.ToString());
 
             } else {
 
-                ModCommunication.SendMessageTo(new DialogMessage("Find results", $"for grids maching {gridNameOrEntityId}", sb.ToString()), Context.Player.SteamUserId);
+                ModCommunication.SendMessageTo(new DialogMessage("Find results", $"for grids matching {gridNameOrEntityId}", sb.ToString()), Context.Player.SteamUserId);
             }
         }
 
