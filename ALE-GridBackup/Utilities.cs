@@ -14,22 +14,22 @@ namespace ALE_GridBackup {
 
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-        public static string FindFolderName(DirectoryInfo[] dirList, string gridNameOrEntityId) {
+        public static DirectoryInfo FindFolderName(List<DirectoryInfo> dirList, string gridNameOrEntityId) {
 
             if (int.TryParse(gridNameOrEntityId, out int index)) {
 
-                if (index <= dirList.Length && index >= 1) {
+                if (index <= dirList.Count && index >= 1) {
 
                     var file = dirList[index - 1];
 
                     if (file != null)
-                        return file.Name;
+                        return file;
                 }
             }
 
             foreach (var file in dirList) 
                 if (Matches(file, gridNameOrEntityId))
-                    return file.Name;
+                    return file;
 
             return null;
         }
@@ -127,13 +127,53 @@ namespace ALE_GridBackup {
             });
         }
 
+        public static List<DirectoryInfo> FindRelevantGrids(GridBackupPlugin plugin,
+            IEnumerable<long> playerIdentities) {
+
+            List<DirectoryInfo> matchingGrids = new List<DirectoryInfo>();
+
+            foreach(long playerIdentity in playerIdentities) {
+
+                string path = plugin.CreatePath();
+                path = plugin.CreatePathForPlayer(path, playerIdentity);
+
+                DirectoryInfo gridDir = new DirectoryInfo(path);
+                DirectoryInfo[] dirList = gridDir.GetDirectories("*", SearchOption.TopDirectoryOnly);
+
+                matchingGrids.AddRange(dirList);
+            }
+
+            return matchingGrids;
+        }
+
+        public static void AddListEntriesToSb(List<DirectoryInfo> matchingGrids, 
+            StringBuilder sb, string gridNameOrEntityId,
+            out string gridname) {
+
+            gridname = null;
+
+            DirectoryInfo gridDir = FindFolderName(matchingGrids, gridNameOrEntityId);
+
+            if (gridDir == null)
+                return;
+
+            gridname = gridDir.Name;
+
+            FileInfo[] fileList = gridDir.GetFiles("*.*", SearchOption.TopDirectoryOnly);
+
+            var query = fileList.OrderByDescending(file => file.CreationTime);
+
+            int i = 1;
+
+            foreach (var file in query)
+                sb.AppendLine((i++) + "      " + file.Name + " " + (file.Length / 1024.0).ToString("#,##0.00") + " kb");
+        }
+
         public static void AddListEntriesToSb(GridBackupPlugin plugin, StringBuilder sb, 
-            long playerIdentity, string gridNameOrEntityId, int startIndex, bool outputPlayerName,
-            out string gridname, out bool gridFound, out int nextIndex) {
+            long playerIdentity, int startIndex, bool outputPlayerName,
+            out int nextIndex) {
 
             nextIndex = startIndex;
-            gridname = null;
-            gridFound = false;
 
             string path = plugin.CreatePath();
             path = plugin.CreatePathForPlayer(path, playerIdentity);
@@ -141,79 +181,40 @@ namespace ALE_GridBackup {
             DirectoryInfo gridDir = new DirectoryInfo(path);
             DirectoryInfo[] dirList = gridDir.GetDirectories("*", SearchOption.TopDirectoryOnly);
 
-            if (gridNameOrEntityId == null) {
+            if (outputPlayerName && dirList.Length > 0) {
 
-                if (outputPlayerName && dirList.Length > 0) {
+                var identity = PlayerUtils.GetIdentityById(playerIdentity);
 
-                    var identity = PlayerUtils.GetIdentityById(playerIdentity);
-
-                    sb.AppendLine(identity.DisplayName);
-                }
-
-                foreach (var file in dirList) {
-
-                    string dateString = GenerateDateString(file);
-
-                    sb.AppendLine((nextIndex++) + "      " + file.Name + " - " + dateString);
-                }
-
-                if (outputPlayerName && dirList.Length > 0)
-                    sb.AppendLine();
-
-            } else {
-
-                string folder = FindFolderName(dirList, gridNameOrEntityId);
-
-                gridname = folder;
-
-                if (gridname == null)
-                    return;
-
-                gridFound = true;
-
-                if (outputPlayerName) {
-
-                    var identity = PlayerUtils.GetIdentityById(playerIdentity);
-
-                    sb.AppendLine(identity.DisplayName);
-                }
-
-                path = Path.Combine(path, folder);
-                gridDir = new DirectoryInfo(path);
-                FileInfo[] fileList = gridDir.GetFiles("*.*", SearchOption.TopDirectoryOnly);
-
-                var query = fileList.OrderByDescending(file => file.CreationTime);
-
-                foreach (var file in query)
-                    sb.AppendLine((nextIndex++) + "      " + file.Name + " " + (file.Length / 1024.0).ToString("#,##0.00") + " kb");
-
-                if (outputPlayerName)
-                    sb.AppendLine();
+                sb.AppendLine(identity.DisplayName);
             }
+
+            foreach (var file in dirList) {
+
+                string dateString = GenerateDateString(file);
+
+                sb.AppendLine((nextIndex++) + "      " + file.Name + " - " + dateString);
+            }
+
+            if (outputPlayerName && dirList.Length > 0)
+                sb.AppendLine();
         }
 
         public static void FindPathToRestore(GridBackupPlugin plugin,
-            long identityId, string gridNameOrEntityId, int backupNumber,
+            List<DirectoryInfo> matchingGrids, string gridNameOrEntityId, int backupNumber,
             out string path, out bool gridFound, out bool outOfBounds) {
 
             gridFound = false;
             outOfBounds = false;
+            path = null;
 
-            path = plugin.CreatePath();
-            path = plugin.CreatePathForPlayer(path, identityId);
+            DirectoryInfo gridDir = FindFolderName(matchingGrids, gridNameOrEntityId);
 
-            DirectoryInfo gridDir = new DirectoryInfo(path);
-            DirectoryInfo[] dirList = gridDir.GetDirectories("*", SearchOption.TopDirectoryOnly);
-
-            string folder = FindFolderName(dirList, gridNameOrEntityId);
-
-            if (folder == null)
+            if (gridDir == null)
                 return;
 
+            path = gridDir.FullName;
             gridFound = true;
 
-            path = Path.Combine(path, folder);
-            gridDir = new DirectoryInfo(path);
             FileInfo[] fileList = gridDir.GetFiles("*.*", SearchOption.TopDirectoryOnly);
 
             List<FileInfo> query = new List<FileInfo>(fileList.OrderByDescending(f => f.CreationTime));

@@ -39,13 +39,25 @@ namespace ALE_GridBackup {
 
             StringBuilder sb = new StringBuilder();
             int i = 1;
+            string gridname = null;
 
-            Utilities.AddListEntriesToSb(Plugin, sb, player.IdentityId, gridNameOrEntityId, i, false,
-                out string gridname, out bool gridFound, out _) ;
+            if (gridNameOrEntityId == null) {
 
-            if (gridNameOrEntityId != null && !gridFound) {
-                Context.Respond("Grid not found!");
-                return;
+                Utilities.AddListEntriesToSb(Plugin, sb, player.IdentityId, i, false, out _);
+
+            } else {
+
+                List<long> playerIdentityList = new List<long>();
+                playerIdentityList.Add(player.IdentityId);
+
+                var relevantGrids = Utilities.FindRelevantGrids(Plugin, playerIdentityList);
+
+                Utilities.AddListEntriesToSb(relevantGrids, sb, gridNameOrEntityId, out gridname);
+
+                if (gridname == null) {
+                    Context.Respond("Grid not found!");
+                    return;
+                }
             }
 
             if (Context.Player == null) {
@@ -83,26 +95,25 @@ namespace ALE_GridBackup {
 
             var factionMembers = faction.Members;
 
-            bool gridFound = false;
+            if (gridNameOrEntityId == null) {
 
-            foreach (long playerIdentity in factionMembers.Keys) {
+                foreach (long playerIdentity in factionMembers.Keys) {
 
-                MyIdentity identity = PlayerUtils.GetIdentityById(playerIdentity);
+                    MyIdentity identity = PlayerUtils.GetIdentityById(playerIdentity);
 
-                Utilities.AddListEntriesToSb(Plugin, sb, playerIdentity, gridNameOrEntityId, i, true,
-                    out string foundGridname, out gridFound, out i);
-
-                /* If we found a matching grid, we can stop now. */
-                if (gridNameOrEntityId != null && foundGridname != null) {
-                    gridname = foundGridname;
-                    break;
+                    Utilities.AddListEntriesToSb(Plugin, sb, playerIdentity, i, true, out i);
                 }
-            }
 
-            /* If we were looking for a grid, but didnt find any display error. */
-            if(gridNameOrEntityId != null && !gridFound) {
-                Context.Respond("Grid not found!");
-                return;
+            } else {
+
+                var relevantGrids = Utilities.FindRelevantGrids(Plugin, factionMembers.Keys);
+
+                Utilities.AddListEntriesToSb(relevantGrids, sb, gridNameOrEntityId, out gridname);
+
+                if (gridname == null) {
+                    Context.Respond("Grid not found!");
+                    return;
+                }
             }
 
             if (Context.Player == null) {
@@ -195,16 +206,21 @@ namespace ALE_GridBackup {
                 return;
             }
 
-            Utilities.FindPathToRestore(Plugin, player.IdentityId, gridNameOrEntityId, backupNumber,
-                out string path, out bool gridFound, out bool outOfBounds);
+            List<long> playerIdentityList = new List<long>();
+            playerIdentityList.Add(player.IdentityId);
 
-            if (!gridFound) {
-                Context.Respond("Grid not found!");
-                return;
-            }
+            var relevantGrids = Utilities.FindRelevantGrids(Plugin, playerIdentityList);
+
+            Utilities.FindPathToRestore(Plugin, relevantGrids, gridNameOrEntityId, backupNumber,
+                out string path, out bool gridFound, out bool outOfBounds);
 
             if (outOfBounds) {
                 Context.Respond("Backup not found! Check if the number is in range!");
+                return;
+            }
+
+            if (!gridFound) {
+                Context.Respond("Grid not found!");
                 return;
             }
 
@@ -224,23 +240,14 @@ namespace ALE_GridBackup {
 
             var factionMembers = faction.Members;
 
-            bool gridFound = false;
-            string path = null;
+            var relevantGrids = Utilities.FindRelevantGrids(Plugin, factionMembers.Keys);
 
-            foreach(long identityId in factionMembers.Keys) {
+            Utilities.FindPathToRestore(Plugin, relevantGrids, gridNameOrEntityId, backupNumber,
+                out string path, out bool gridFound, out bool outOfBounds);
 
-                Utilities.FindPathToRestore(Plugin, identityId, gridNameOrEntityId, backupNumber,
-                    out path, out bool foundAnything, out bool outOfBounds);
-
-                if (outOfBounds) {
-                    Context.Respond("Backup not found! Check if the number is in range!");
-                    return;
-                }
-
-                if (foundAnything) {
-                    gridFound = true;
-                    break;
-                }
+            if (outOfBounds) {
+                Context.Respond("Backup not found! Check if the number is in range!");
+                return;
             }
 
             if (!gridFound) {
