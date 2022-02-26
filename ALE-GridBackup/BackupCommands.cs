@@ -143,14 +143,18 @@ namespace ALE_GridBackup {
                 DirectoryInfo gridDir = new DirectoryInfo(path);
                 DirectoryInfo[] dirList = gridDir.GetDirectories("*", SearchOption.TopDirectoryOnly);
 
-                string folder = Utilities.FindFolderName(dirList, gridNameOrEntityId);
+                List<DirectoryInfo> filteredGrids = new List<DirectoryInfo>();
 
-                if (folder == null)
+                foreach (DirectoryInfo grid in dirList) {
+
+                    if (!Utilities.Matches(grid, gridNameOrEntityId))
+                        continue;
+
+                    filteredGrids.Add(grid);
+                }
+
+                if (filteredGrids.Count == 0)
                     continue;
-
-                string dateString = Utilities.GenerateDateString(
-                    new DirectoryInfo(
-                        Path.Combine(gridDir.FullName, folder)));
 
                 string factionTag = FactionUtils.GetPlayerFactionTag(playerId);
 
@@ -158,7 +162,13 @@ namespace ALE_GridBackup {
                     factionTag = " [" + factionTag + "]";
 
                 sb.AppendLine(identitiy.DisplayName + factionTag);
-                sb.AppendLine((i++) + "      " + folder + " - " + dateString);
+
+                foreach (DirectoryInfo grid in filteredGrids) { 
+
+                    string dateString = Utilities.GenerateDateString(grid);
+
+                    sb.AppendLine((i++) + "      " + grid + " - " + dateString);
+                }
             }
 
             if (Context.Player == null) {

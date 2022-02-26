@@ -27,27 +27,33 @@ namespace ALE_GridBackup {
                 }
             }
 
-            foreach (var file in dirList) {
-
-                var name = file.Name;
-                var lastIndex = name.LastIndexOf("_");
-
-                string gridName = name.Substring(0, lastIndex);
-                string entityId = name.Substring(lastIndex + 1, name.Length - (lastIndex + 1));
-
-                var regex = WildCardToRegular(gridNameOrEntityId);
-
-                if (Regex.IsMatch(entityId, regex))
-                    return name;
-
-                if (Regex.IsMatch(gridName, regex))
-                    return name;
-
-                if (Regex.IsMatch(name, regex))
-                    return name;
-            }
+            foreach (var file in dirList) 
+                if (Matches(file, gridNameOrEntityId))
+                    return file.Name;
 
             return null;
+        }
+
+        public static bool Matches(DirectoryInfo file, string gridNameOrEntityId) {
+
+            var name = file.Name;
+            var lastIndex = name.LastIndexOf("_");
+
+            string gridName = name.Substring(0, lastIndex);
+            string entityId = name.Substring(lastIndex + 1, name.Length - (lastIndex + 1));
+
+            var regex = WildCardToRegular(gridNameOrEntityId);
+
+            if (Regex.IsMatch(entityId, regex))
+                return true;
+
+            if (Regex.IsMatch(gridName, regex))
+                return true;
+
+            if (Regex.IsMatch(name, regex))
+                return true;
+
+            return false;
         }
 
         private static string WildCardToRegular(string value) {
