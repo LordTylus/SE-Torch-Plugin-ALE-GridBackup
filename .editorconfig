@@ -1,0 +1,10 @@
+﻿[*.cs]
+
+# IDE0008: Expliziten Typ verwenden
+dotnet_diagnostic.IDE0008.severity = none
+
+# IDE0011: Geschweifte Klammern hinzufügen
+dotnet_diagnostic.IDE0011.severity = none
+
+# IDE0058: Der Ausdruckswert wird niemals verwendet.
+dotnet_diagnostic.IDE0058.severity = none

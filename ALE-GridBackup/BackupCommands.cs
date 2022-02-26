@@ -37,46 +37,15 @@ namespace ALE_GridBackup {
                 return;
             }
 
-            string path = Plugin.CreatePath();
-            path = Plugin.CreatePathForPlayer(path, player.IdentityId);
-
-            DirectoryInfo gridDir = new DirectoryInfo(path);
-            DirectoryInfo[] dirList = gridDir.GetDirectories("*", SearchOption.TopDirectoryOnly);
-
             StringBuilder sb = new StringBuilder();
+            int i = 1;
 
-            string gridname = null;
+            Utilities.AddListEntriesToSb(Plugin, sb, player.IdentityId, gridNameOrEntityId, i, false,
+                out string gridname, out bool gridFound, out _) ;
 
-            if (gridNameOrEntityId == null) {
-
-                int i = 1;
-                foreach (var file in dirList) {
-
-                    string dateString = Utilities.GenerateDateString(file);
-
-                    sb.AppendLine((i++) + "      " + file.Name + " - " + dateString);
-                }
-
-            } else {
-
-                string folder = Utilities.FindFolderName(dirList, gridNameOrEntityId);
-
-                gridname = folder;
-
-                if (gridname == null) {
-                    Context.Respond("Grid not found!");
-                    return;
-                }
-
-                path = Path.Combine(path, folder);
-                gridDir = new DirectoryInfo(path);
-                FileInfo[] fileList = gridDir.GetFiles("*.*", SearchOption.TopDirectoryOnly);
-
-                var query = fileList.OrderByDescending(file => file.CreationTime);
-
-                int i = 1;
-                foreach (var file in query)
-                    sb.AppendLine((i++) +"      "+file.Name+" "+(file.Length/1024.0).ToString("#,##0.00")+" kb");
+            if (gridNameOrEntityId != null && !gridFound) {
+                Context.Respond("Grid not found!");
+                return;
             }
 
             if (Context.Player == null) {
@@ -97,6 +66,114 @@ namespace ALE_GridBackup {
             }
         }
 
+        [Command("list faction", "Lists all Backups for the given faction and/or grid.")]
+        [Permission(MyPromoteLevel.SpaceMaster)]
+        public void ListFaction(string factionTag, string gridNameOrEntityId = null) {
+
+            IMyFaction faction = FactionUtils.GetIdentityByTag(factionTag);
+
+            if (faction == null) {
+                Context.Respond("Player not found!");
+                return;
+            }
+
+            StringBuilder sb = new StringBuilder();
+            string gridname = null;
+            int i = 1;
+
+            var factionMembers = faction.Members;
+
+            bool gridFound = false;
+
+            foreach (long playerIdentity in factionMembers.Keys) {
+
+                MyIdentity identity = PlayerUtils.GetIdentityById(playerIdentity);
+
+                Utilities.AddListEntriesToSb(Plugin, sb, playerIdentity, gridNameOrEntityId, i, true,
+                    out string foundGridname, out gridFound, out i);
+
+                /* If we found a matching grid, we can stop now. */
+                if (gridNameOrEntityId != null && foundGridname != null) {
+                    gridname = foundGridname;
+                    break;
+                }
+            }
+
+            /* If we were looking for a grid, but didnt find any display error. */
+            if(gridNameOrEntityId != null && !gridFound) {
+                Context.Respond("Grid not found!");
+                return;
+            }
+
+            if (Context.Player == null) {
+
+                Context.Respond($"Backed up Grids for Faction {faction.Name} [{faction.Tag}]");
+
+                if (gridname != null)
+                    Context.Respond($"Grid {gridname}");
+
+                Context.Respond(sb.ToString());
+
+            } else {
+
+                if (gridname != null)
+                    ModCommunication.SendMessageTo(new DialogMessage("Backed up Grids", $"Grid {gridname}", sb.ToString()), Context.Player.SteamUserId);
+                else
+                    ModCommunication.SendMessageTo(new DialogMessage("Backed up Grids", $"Faction {faction.Name} [{faction.Tag}]", sb.ToString()), Context.Player.SteamUserId);
+            }
+        }
+
+        [Command("find", "Looks which players have a backup maching the provided grid.")]
+        [Permission(MyPromoteLevel.SpaceMaster)]
+        public void Find(string gridNameOrEntityId = null) {
+
+            string basePath = Plugin.CreatePath();
+
+            var identities = MySession.Static.Players.GetAllIdentities();
+
+            StringBuilder sb = new StringBuilder();
+            int i = 1;
+
+            foreach (var identitiy in identities) {
+
+                long playerId = identitiy.IdentityId;
+
+                string path = Plugin.CreatePathForPlayer(basePath, playerId);
+
+                DirectoryInfo gridDir = new DirectoryInfo(path);
+                DirectoryInfo[] dirList = gridDir.GetDirectories("*", SearchOption.TopDirectoryOnly);
+
+                string folder = Utilities.FindFolderName(dirList, gridNameOrEntityId);
+
+                if (folder == null)
+                    continue;
+
+                string dateString = Utilities.GenerateDateString(
+                    new DirectoryInfo(
+                        Path.Combine(gridDir.FullName, folder)));
+
+                string factionTag = FactionUtils.GetPlayerFactionTag(playerId);
+
+                if (factionTag != "")
+                    factionTag = " [" + factionTag + "]";
+
+                sb.AppendLine(identitiy.DisplayName + factionTag);
+                sb.AppendLine((i++) + "      " + folder + " - " + dateString);
+            }
+
+            if (Context.Player == null) {
+
+                Context.Respond($"Find results");
+                Context.Respond($"for grids maching {gridNameOrEntityId}");
+
+                Context.Respond(sb.ToString());
+
+            } else {
+
+                ModCommunication.SendMessageTo(new DialogMessage("Find results", $"for grids maching {gridNameOrEntityId}", sb.ToString()), Context.Player.SteamUserId);
+            }
+        }
+
         [Command("restore", "Restores the given grid from the backups.")]
         [Permission(MyPromoteLevel.SpaceMaster)]
         public void Restore(string playernameOrSteamId, string gridNameOrEntityId, int backupNumber = 1, bool keepOriginalPosition = false, bool force = false) {
@@ -108,76 +185,60 @@ namespace ALE_GridBackup {
                 return;
             }
 
-            string path = Plugin.CreatePath();
-            path = Plugin.CreatePathForPlayer(path, player.IdentityId);
+            Utilities.FindPathToRestore(Plugin, player.IdentityId, gridNameOrEntityId, backupNumber,
+                out string path, out bool gridFound, out bool outOfBounds);
 
-            DirectoryInfo gridDir = new DirectoryInfo(path);
-            DirectoryInfo[] dirList = gridDir.GetDirectories("*", SearchOption.TopDirectoryOnly);
-
-            StringBuilder sb = new StringBuilder();
-
-            string folder = Utilities.FindFolderName(dirList, gridNameOrEntityId);
-
-            if (folder == null) {
+            if (!gridFound) {
                 Context.Respond("Grid not found!");
                 return;
             }
 
-            path = Path.Combine(path, folder);
-            gridDir = new DirectoryInfo(path);
-            FileInfo[] fileList = gridDir.GetFiles("*.*", SearchOption.TopDirectoryOnly);
-
-            List<FileInfo> query = new List<FileInfo>(fileList.OrderByDescending(f => f.CreationTime));
-
-            if(backupNumber > query.Count || backupNumber < 1) { 
+            if (outOfBounds) {
                 Context.Respond("Backup not found! Check if the number is in range!");
                 return;
             }
 
-            FileInfo file = query[backupNumber - 1];
+            ImportPath(path, keepOriginalPosition, force);
+        }
 
-            path = Path.Combine(path, file.Name);
+        [Command("restore faction", "Restores the given grid from the backups.")]
+        [Permission(MyPromoteLevel.SpaceMaster)]
+        public void RestoreFaction(string factionTag, string gridNameOrEntityId, int backupNumber = 1, bool keepOriginalPosition = false, bool force = false) {
 
-            var playerPosition = Vector3D.Zero;
+            IMyFaction faction = FactionUtils.GetIdentityByTag(factionTag);
 
-            if (!keepOriginalPosition) {
+            if (faction == null) {
+                Context.Respond("Player not found!");
+                return;
+            }
 
-                if (Context.Player == null) {
-                    Context.Respond("Console can only paste on the same location. Check the syntax on the plugin page!");
+            var factionMembers = faction.Members;
+
+            bool gridFound = false;
+            string path = null;
+
+            foreach(long identityId in factionMembers.Keys) {
+
+                Utilities.FindPathToRestore(Plugin, identityId, gridNameOrEntityId, backupNumber,
+                    out path, out bool foundAnything, out bool outOfBounds);
+
+                if (outOfBounds) {
+                    Context.Respond("Backup not found! Check if the number is in range!");
                     return;
                 }
 
-                var executingPlayer = ((MyPlayer)Context.Player).Identity;
-
-                if (executingPlayer.Character == null) {
-                    Context.Respond("Player has no character to spawn the grid close to!");
-                    return;
+                if (foundAnything) {
+                    gridFound = true;
+                    break;
                 }
-
-                playerPosition = executingPlayer.Character.PositionComp.GetPosition();
             }
 
-            var executor = Context.Player;
-            var executerName = "Server";
-
-            if (executor != null)
-                executerName = executor.DisplayName;
-
-            var result = GridManager.LoadGrid(path, playerPosition, keepOriginalPosition, force);
-
-            if (result == GridImportResult.OK) {
-
-                Log.Info(executerName+" restored backup from path: "+ path);
-                
-                Context.Respond("Restored "+ file.Name + " successfully!");
-
-            } else {
-
-                Log.Info(executerName + " failed to restore backup from path: " + path);
-
-                GridImportResultWriter.WriteResult(Context, result);
-                Context.Respond("Restore of " + file.Name + " failed!");
+            if (!gridFound) {
+                Context.Respond("Grid not found!");
+                return;
             }
+
+            ImportPath(path, keepOriginalPosition, force);
         }
 
         [Command("save", "Saves the grid defined by name, or you are looking at manually.")]
@@ -278,6 +339,53 @@ namespace ALE_GridBackup {
             cooldownManager.StartCooldown(cooldownKey, command, 30 * 1000);
 
             return false;
+        }
+
+
+        private void ImportPath(string path, bool keepOriginalPosition, bool force) {
+
+            var playerPosition = Vector3D.Zero;
+
+            if (!keepOriginalPosition) {
+
+                if (Context.Player == null) {
+                    Context.Respond("Console can only paste on the same location. Check the syntax on the plugin page!");
+                    return;
+                }
+
+                var executingPlayer = ((MyPlayer)Context.Player).Identity;
+
+                if (executingPlayer.Character == null) {
+                    Context.Respond("Player has no character to spawn the grid close to!");
+                    return;
+                }
+
+                playerPosition = executingPlayer.Character.PositionComp.GetPosition();
+            }
+
+            var executor = Context.Player;
+            var executerName = "Server";
+
+            if (executor != null)
+                executerName = executor.DisplayName;
+
+            var result = GridManager.LoadGrid(path, playerPosition, keepOriginalPosition, force);
+
+            var file = new FileInfo(path);
+
+            if (result == GridImportResult.OK) {
+
+                Log.Info(executerName + " restored backup from path: " + path);
+
+                Context.Respond("Restored " + file.Name + " successfully!");
+
+            } else {
+
+                Log.Info(executerName + " failed to restore backup from path: " + path);
+
+                GridImportResultWriter.WriteResult(Context, result);
+                Context.Respond("Restore of " + file.Name + " failed!");
+            }
         }
     }
 }

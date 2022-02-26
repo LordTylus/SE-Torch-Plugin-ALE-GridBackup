@@ -7,6 +7,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ALE-GridBackup", "ALE-GridB
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "ALE-Core", "ALE-Core\ALE-Core.shproj", "{6692DDE3-BD7D-4239-9230-FDD834526DB2}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DB23D4F1-E9BC-4C3A-B46B-AC6C84E7E7B5}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		ALE-Core\ALE-Core.projitems*{5c189f6d-588b-43e1-8130-5883667ad3d3}*SharedItemsImports = 4
