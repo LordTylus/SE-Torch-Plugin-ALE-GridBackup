@@ -64,7 +64,7 @@ namespace ALE_GridBackup {
 
                 Context.Respond($"Backed up Grids for Player {player.DisplayName} #{player.IdentityId}");
 
-                if(gridname != null)
+                if (gridname != null)
                     Context.Respond($"Grid {gridname}");
 
                 Context.Respond(sb.ToString());
