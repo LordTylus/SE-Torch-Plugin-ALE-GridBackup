@@ -207,7 +207,7 @@ namespace ALE_GridBackup {
                  * Usually all calling locations could deal with a MyIdentity instead.
                  * But I dont want to deal with NULL values to get Nobody Grids exported. 
                  */
-                string playerName = PlayerUtils.GetPlayerNameById(playerId);
+                string playerName = PlayerUtils.GetDisplayNameWithoutIcon(playerId);
 
                 foreach (var c in Path.GetInvalidFileNameChars())
                     playerName = playerName.Replace(c, '_');
