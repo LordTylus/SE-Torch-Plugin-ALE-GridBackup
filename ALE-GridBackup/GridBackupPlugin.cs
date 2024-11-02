@@ -175,10 +175,7 @@ namespace ALE_GridBackup {
 
         public string CreatePath() {
 
-            string fileName = Config.BackupSaveFolderName;
-
-            foreach (var c in Path.GetInvalidFileNameChars())
-                fileName = fileName.Replace(c, '_');
+            string fileName = FileUtils.ToValidatedInput(Config.BackupSaveFolderName);
 
             var folder = Path.Combine(StoragePath, fileName);
             Directory.CreateDirectory(folder);
@@ -207,10 +204,8 @@ namespace ALE_GridBackup {
                  * Usually all calling locations could deal with a MyIdentity instead.
                  * But I dont want to deal with NULL values to get Nobody Grids exported. 
                  */
-                string playerName = PlayerUtils.GetDisplayNameWithoutIcon(playerId);
-
-                foreach (var c in Path.GetInvalidFileNameChars())
-                    playerName = playerName.Replace(c, '_');
+                string playerName = FileUtils.ToValidatedInput(
+                    PlayerUtils.GetDisplayNameWithoutIcon(playerId));
 
                 folderName = playerName + "_" + folderName;
             }
@@ -223,8 +218,7 @@ namespace ALE_GridBackup {
 
         public string CreatePathForGrid(string pathForPlayer, string gridName, long entityId) {
 
-            foreach (var c in Path.GetInvalidFileNameChars())
-                gridName = gridName.Replace(c, '_');
+            gridName = FileUtils.ToValidatedInput(gridName);
 
             var folder = Path.Combine(pathForPlayer, gridName + "_" + entityId);
             Directory.CreateDirectory(folder);
