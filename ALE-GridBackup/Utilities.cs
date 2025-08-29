@@ -39,6 +39,9 @@ namespace ALE_GridBackup {
             var name = file.Name;
             var lastIndex = name.LastIndexOf("_");
 
+            if (lastIndex < 0)
+                return false;
+
             string gridName = name.Substring(0, lastIndex);
             string entityId = name.Substring(lastIndex + 1, name.Length - (lastIndex + 1));
 
@@ -64,7 +67,7 @@ namespace ALE_GridBackup {
 
             try {
 
-                var fileList = file.GetFiles("*.*", SearchOption.TopDirectoryOnly);
+                var fileList = file.GetFiles("*.sbc", SearchOption.TopDirectoryOnly);
                 if (fileList.Length == 0)
                     return "";
 
@@ -103,7 +106,7 @@ namespace ALE_GridBackup {
 
                         try {
 
-                            var fileList = gridDir.GetFiles("*.*", SearchOption.TopDirectoryOnly);
+                            var fileList = gridDir.GetFiles("*.sbc", SearchOption.TopDirectoryOnly);
 
                             foreach (var file in fileList) {
 
@@ -140,7 +143,14 @@ namespace ALE_GridBackup {
                 DirectoryInfo gridDir = new DirectoryInfo(path);
                 DirectoryInfo[] dirList = gridDir.GetDirectories("*", SearchOption.TopDirectoryOnly);
 
-                matchingGrids.AddRange(dirList);
+                foreach (var file in dirList) {
+
+                    var fileList = file.GetFiles("*.sbc", SearchOption.TopDirectoryOnly);
+                    if (fileList.Length == 0)
+                        continue;
+
+                    matchingGrids.Add(file);
+                }
             }
 
             return matchingGrids;
@@ -159,7 +169,7 @@ namespace ALE_GridBackup {
 
             gridname = gridDir.Name;
 
-            FileInfo[] fileList = gridDir.GetFiles("*.*", SearchOption.TopDirectoryOnly);
+            FileInfo[] fileList = gridDir.GetFiles("*.sbc", SearchOption.TopDirectoryOnly);
 
             var query = fileList.OrderByDescending(file => file.CreationTime);
 
@@ -192,6 +202,9 @@ namespace ALE_GridBackup {
 
                 string dateString = GenerateDateString(file);
 
+                if (dateString == "")
+                    continue;
+
                 sb.AppendLine((nextIndex++) + "      " + file.Name + " - " + dateString);
             }
 
@@ -215,7 +228,7 @@ namespace ALE_GridBackup {
             path = gridDir.FullName;
             gridFound = true;
 
-            FileInfo[] fileList = gridDir.GetFiles("*.*", SearchOption.TopDirectoryOnly);
+            FileInfo[] fileList = gridDir.GetFiles("*.sbc", SearchOption.TopDirectoryOnly);
 
             List<FileInfo> query = new List<FileInfo>(fileList.OrderByDescending(f => f.CreationTime));
 

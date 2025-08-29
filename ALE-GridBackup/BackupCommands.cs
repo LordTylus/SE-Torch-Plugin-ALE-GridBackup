@@ -178,6 +178,9 @@ namespace ALE_GridBackup {
 
                     string dateString = Utilities.GenerateDateString(grid);
 
+                    if (dateString == "")
+                        continue;
+
                     sb.AppendLine((i++) + "      " + grid + " - " + dateString);
                 }
             }
