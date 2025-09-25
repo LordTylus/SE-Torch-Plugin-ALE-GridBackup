@@ -210,20 +210,14 @@ namespace ALE_GridBackup {
                 folderName = playerName + "_" + folderName;
             }
 
-            var folder = Path.Combine(path, folderName);
-            Directory.CreateDirectory(folder);
-
-            return folder;
+            return Path.Combine(path, folderName);
         }
 
         public string CreatePathForGrid(string pathForPlayer, string gridName, long entityId) {
 
             gridName = FileUtils.ToValidatedInput(gridName);
 
-            var folder = Path.Combine(pathForPlayer, gridName + "_" + entityId);
-            Directory.CreateDirectory(folder);
-
-            return folder;
+            return Path.Combine(pathForPlayer, gridName + "_" + entityId);
         }
 
         public void Save() {

@@ -140,6 +140,9 @@ namespace ALE_GridBackup {
                 string path = plugin.CreatePath();
                 path = plugin.CreatePathForPlayer(path, playerIdentity);
 
+                if (!Directory.Exists(path))
+                    continue;
+
                 DirectoryInfo gridDir = new DirectoryInfo(path);
                 DirectoryInfo[] dirList = gridDir.GetDirectories("*", SearchOption.TopDirectoryOnly);
 
@@ -187,6 +190,9 @@ namespace ALE_GridBackup {
 
             string path = plugin.CreatePath();
             path = plugin.CreatePathForPlayer(path, playerIdentity);
+
+            if (!Directory.Exists(path))
+                return;
 
             DirectoryInfo gridDir = new DirectoryInfo(path);
             DirectoryInfo[] dirList = gridDir.GetDirectories("*", SearchOption.TopDirectoryOnly);

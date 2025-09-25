@@ -85,7 +85,7 @@ namespace ALE_GridBackup {
             IMyFaction faction = FactionUtils.GetIdentityByTag(factionTag);
 
             if (faction == null) {
-                Context.Respond("Player not found!");
+                Context.Respond("Faction not found!");
                 return;
             }
 
@@ -150,6 +150,8 @@ namespace ALE_GridBackup {
                 long playerId = identitiy.IdentityId;
 
                 string path = Plugin.CreatePathForPlayer(basePath, playerId);
+                if (!Directory.Exists(path))
+                    continue;
 
                 DirectoryInfo gridDir = new DirectoryInfo(path);
                 DirectoryInfo[] dirList = gridDir.GetDirectories("*", SearchOption.TopDirectoryOnly);

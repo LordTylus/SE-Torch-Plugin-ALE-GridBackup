@@ -194,8 +194,11 @@ namespace ALE_GridBackup {
             try {
 
                 string pathForPlayer = plugin.CreatePathForPlayer(path, playerId);
+                Directory.CreateDirectory(pathForPlayer);
 
                 string pathForGrid = plugin.CreatePathForGrid(pathForPlayer, gridName, entityId);
+                Directory.CreateDirectory(pathForGrid);
+
                 string fileName = DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".sbc";
                 string fileNameDaily = DAILY_PRAEFIX+"_" +DateTime.Now.ToString("yyyy_MM_dd") + ".sbc";
 
